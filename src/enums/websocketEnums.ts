@@ -2,5 +2,8 @@ export enum WebSocketEvent {
     MESSAGE = 'message',
     CLOSE = 'close',
     CONNECTION = 'connection',
-    CREATE_SESSION = 'create',
+}
+
+export enum WebSocketMessageEvent {
+    CREATE_SESSION = 'create_session',
 }

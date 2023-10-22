@@ -1,9 +1,9 @@
 import * as https from 'https';
 import express from 'express';
 import WebSocket from 'ws';
-import { WebSocketEvent } from './types/websocket';
+import { WebSocketEvent, WebSocketMessageEvent } from './enums/websocketEnums';
 import { sessionHandler } from './handlers/index';
-import { decrypt } from './utils/decrypt';
+import { stringToJSON } from './utils/stringToJson';
 import fs from 'fs';
 
 const app = express();
@@ -20,8 +20,8 @@ wss.on(WebSocketEvent.CONNECTION, (ws: WebSocket, req) => {
     ws.send('Welcome to the server!');
 
     ws.on(WebSocketEvent.MESSAGE, (message: string) => {
-        if (decrypt(message).event === 'create') {
-            sessionHandler.initiateSession(ws);
+        if (stringToJSON(message).event === WebSocketMessageEvent.CREATE_SESSION) {
+            sessionHandler.createSession(ws);
         }
         console.log(`Received: ${message}`);
     });
