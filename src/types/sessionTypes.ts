@@ -7,3 +7,9 @@ export type Session = {
     host: WebSocket;
     participants: WebSocket[];
 };
+
+export type Message = {
+    event: string;
+    token?: string;
+    message: object;
+};

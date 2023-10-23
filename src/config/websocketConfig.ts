@@ -6,4 +6,5 @@ export enum WebSocketEvent {
 
 export enum WebSocketMessageEvent {
     CREATE_SESSION = 'create_session',
+    MESSAGE_SESSION = 'message_session',
 }
