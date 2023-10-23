@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import WebSocket from 'ws';
 import { sessions } from '../storage/sessionStorage';
-import { Message } from '../types/sessionTypes';
+import { Message, SessionMessageEvent } from '../config/sessionConfig';
 import { generatePin } from '../utils/generatePin';
 
 class sessionHandler {
@@ -39,8 +39,12 @@ class sessionHandler {
                 return;
             }
 
-            for (const participant of session.participants) {
-                participant.send(obj.message.toString());
+            if (obj.message.type === SessionMessageEvent.HOST) {
+                session.host.send(obj.message.toString());
+            } else if (obj.message.type === SessionMessageEvent.ALL) {
+                for (const participant of session.participants) {
+                    participant.send(obj.message.action.toString());
+                }
             }
         } else {
             console.log('no token provided');

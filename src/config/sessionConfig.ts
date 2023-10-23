@@ -11,5 +11,10 @@ export type Session = {
 export type Message = {
     event: string;
     token?: string;
-    message: object;
+    message: { action: object; type: string };
 };
+
+export enum SessionMessageEvent {
+    ALL = 'all',
+    HOST = 'host',
+}

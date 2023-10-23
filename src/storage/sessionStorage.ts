@@ -1,3 +1,3 @@
-import { Session } from '../types/sessionTypes';
+import { Session } from '../config/sessionConfig';
 
 export const sessions: Session[] = [];
