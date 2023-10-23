@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import WebSocket from 'ws';
 import { sessions } from '../storage/sessionStorage';
 import { Message } from '../types/sessionTypes';
+import { generatePin } from '../utils/generatePin';
 
 class sessionHandler {
     public createSession = (ws: WebSocket) => {
@@ -13,10 +14,13 @@ class sessionHandler {
         }
 
         const uniqueSessionId = uuidv4();
+        const pin = generatePin();
+
+        console.log(pin);
 
         sessions.push({
             id: uniqueSessionId,
-            pin: '1234',
+            pin: pin,
             scenario: 'scenario',
             host: ws,
             participants: [ws],
@@ -24,6 +28,7 @@ class sessionHandler {
 
         ws.send(`Session initiated for session ID: ${uniqueSessionId}`);
     };
+
     public messageSession = (ws: WebSocket, obj: Message) => {
         if (obj?.token) {
             const session = sessions.find((session) => session.id === obj.token);
