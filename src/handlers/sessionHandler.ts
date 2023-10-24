@@ -3,9 +3,10 @@ import WebSocket from 'ws';
 import { sessions } from '../storage/sessionStorage';
 import { Message, SessionMessageEvent } from '../config/sessionConfig';
 import { generatePin } from '../utils/generatePin';
+import { stringToJSON } from '../utils/stringToJson';
 
 class sessionHandler {
-    public createSession = (ws: WebSocket) => {
+    public createSession = (ws: WebSocket, obj: Message) => {
         for (const session of sessions) {
             if (session.host === ws) {
                 ws.send('You are already in a session!');
@@ -13,20 +14,25 @@ class sessionHandler {
             }
         }
 
-        const uniqueSessionId = uuidv4();
-        const pin = generatePin();
+        if (obj.message.type === SessionMessageEvent.HOST) {
+            const uniqueSessionId = uuidv4();
+            const pin = generatePin();
+            const scenario = obj.message.action.scenario.toString();
+            const totalQuestions = Number(obj.message.action.totalQuestions);
+            const winPercentage = Number(obj.message.action.winPercentage) ?? 50;
 
-        console.log(pin);
+            sessions.push({
+                id: uniqueSessionId,
+                pin,
+                scenario,
+                host: ws,
+                participants: [{ ws, score: 0 }],
+                totalQuestions,
+                winPercentage,
+            });
 
-        sessions.push({
-            id: uniqueSessionId,
-            pin: pin,
-            scenario: 'scenario',
-            host: ws,
-            participants: [ws],
-        });
-
-        ws.send(`Session initiated for session ID: ${uniqueSessionId}`);
+            ws.send(`Session initiated for session ID: ${uniqueSessionId}`);
+        }
     };
 
     public messageSession = (ws: WebSocket, obj: Message) => {
@@ -43,7 +49,7 @@ class sessionHandler {
                 session.host.send(obj.message.toString());
             } else if (obj.message.type === SessionMessageEvent.ALL) {
                 for (const participant of session.participants) {
-                    participant.send(obj.message.action.toString());
+                    participant.ws.send(obj.message.action.toString());
                 }
             }
         } else {
