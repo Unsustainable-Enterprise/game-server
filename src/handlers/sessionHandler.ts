@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import WebSocket from 'ws';
 import { sessions } from '../storage/sessionStorage';
-import { Message, SessionMessageEvent } from '../config/sessionConfig';
+import { Message, SessionMessageEvent, Session } from '../config/sessionConfig';
 import { generatePin } from '../utils/generatePin';
-import { stringToJSON } from '../utils/stringToJson';
+import { z } from 'zod';
 
 class sessionHandler {
     public createSession = (ws: WebSocket, obj: Message) => {
@@ -14,7 +14,21 @@ class sessionHandler {
             }
         }
 
-        if (obj.message.type === SessionMessageEvent.HOST) {
+        const createSessionSchema = z.object({
+            event: z.string().min(1),
+            message: z.object({
+                action: z.object({
+                    scenario: z.string().min(1),
+                    totalQuestions: z.number(),
+                    winPercentage: z.number(),
+                }),
+                type: z.string().min(1),
+            }),
+        });
+
+        const validation = createSessionSchema.safeParse(obj);
+
+        if (validation?.success && obj.message.type === SessionMessageEvent.HOST) {
             const uniqueSessionId = uuidv4();
             const pin = generatePin();
             const scenario = obj.message.action.scenario.toString();
