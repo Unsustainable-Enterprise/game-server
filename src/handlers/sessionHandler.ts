@@ -7,13 +7,6 @@ import { z } from 'zod';
 
 class sessionHandler {
     public createSession = (ws: WebSocket, obj: Message) => {
-        for (const session of sessions) {
-            if (session.host === ws) {
-                ws.send('You are already in a session!');
-                return;
-            }
-        }
-
         const createSessionSchema = z.object({
             event: z.string().min(1),
             message: z.object({
@@ -28,7 +21,19 @@ class sessionHandler {
 
         const validation = createSessionSchema.safeParse(obj);
 
-        if (validation?.success && obj.message.type === SessionMessageEvent.HOST) {
+        if (!validation?.success) {
+            console.log('createSession validation failed');
+            return;
+        }
+
+        for (const session of sessions) {
+            if (session.host === ws) {
+                ws.send('You are already in a session!');
+                return;
+            }
+        }
+
+        if (obj.message.type === SessionMessageEvent.HOST) {
             const uniqueSessionId = uuidv4();
             const pin = generatePin();
             const scenario = obj.message.action.scenario.toString();
