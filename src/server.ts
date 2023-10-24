@@ -21,21 +21,22 @@ wss.on(WebSocketEvent.CONNECTION, (ws: WebSocket, req) => {
 
     ws.on(WebSocketEvent.MESSAGE, (message: string) => {
         const jsonMessage = stringToJSON(message);
-        switch (jsonMessage.event) {
-            case WebSocketMessageEvent.CREATE_SESSION: {
-                sessionHandler.createSession(ws);
-                break;
-            }
-            case WebSocketMessageEvent.MESSAGE_SESSION: {
-                sessionHandler.messageSession(ws, jsonMessage);
-                break;
-            }
-            default: {
-                break;
+
+        if (!jsonMessage) {
+            switch (jsonMessage.event) {
+                case WebSocketMessageEvent.CREATE_SESSION: {
+                    sessionHandler.createSession(ws, jsonMessage);
+                    break;
+                }
+                case WebSocketMessageEvent.MESSAGE_SESSION: {
+                    sessionHandler.messageSession(ws, jsonMessage);
+                    break;
+                }
+                default: {
+                    break;
+                }
             }
         }
-
-        //  console.log(`Received: ${message}`);
     });
 
     ws.on(WebSocketEvent.CLOSE, () => {
