@@ -43,6 +43,7 @@ wss.on(WebSocketEvent.CONNECTION, (ws: WebSocket, req) => {
     });
 
     ws.on(WebSocketEvent.CLOSE, () => {
+        sessionHandler.onDissconnet(ws);
         console.log('A user disconnected');
     });
 });

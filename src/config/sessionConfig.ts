@@ -1,5 +1,11 @@
 import WebSocket from 'ws';
 
+export enum SessionMessageEvent {
+    ALL = 'all',
+    HOST = 'host',
+    NONE = 'none',
+}
+
 export type Session = {
     id: string;
     pin: string;
@@ -16,8 +22,7 @@ export type Message = {
     message: { data: { [key: string]: string | number | boolean }; type: string };
 };
 
-export enum SessionMessageEvent {
-    ALL = 'all',
-    HOST = 'host',
-    NONE = 'none',
-}
+export type Participants = {
+    ws: WebSocket;
+    score: number;
+};
