@@ -13,7 +13,7 @@ export type Session = {
 export type Message = {
     event: string;
     token?: string;
-    message: { action: { [key: string]: string | number | boolean }; type: string };
+    message: { data: { [key: string]: string | number | boolean }; type: string };
 };
 
 export enum SessionMessageEvent {

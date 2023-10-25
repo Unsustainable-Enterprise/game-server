@@ -27,9 +27,9 @@ class sessionHandler {
         if (obj.message.type === SessionMessageEvent.HOST) {
             const uniqueSessionId = uuidv4();
             const pin = generatePin();
-            const scenario = obj.message.action.scenario.toString();
-            const totalQuestions = Number(obj.message.action.totalQuestions);
-            const winPercentage = Number(obj.message.action.winPercentage) ?? 50;
+            const scenario = obj.message.data.scenario.toString();
+            const totalQuestions = Number(obj.message.data.totalQuestions);
+            const winPercentage = Number(obj.message.data.winPercentage) ?? 50;
 
             sessions.push({
                 id: uniqueSessionId,
@@ -59,7 +59,7 @@ class sessionHandler {
                 session.host.send(obj.message.toString());
             } else if (obj.message.type === SessionMessageEvent.ALL) {
                 for (const participant of session.participants) {
-                    participant.ws.send(obj.message.action.toString());
+                    participant.ws.send(obj.message.data.toString());
                 }
             }
         } else {
