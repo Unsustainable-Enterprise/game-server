@@ -4,9 +4,12 @@ import { sessions } from '../storage/sessionStorage';
 import { Message, SessionMessageEvent, Session } from '../config/sessionConfig';
 import { generatePin } from '../utils/generatePin';
 import { createSessionSchema } from '../config/schema/sessionSchema';
+import { sendMessage } from '../utils/sendMessage';
 
 class sessionHandler {
     public createSession = (ws: WebSocket, obj: Message) => {
+        console.log('hello');
+
         const validation = createSessionSchema.safeParse(obj);
 
         if (!validation?.success) {
@@ -38,7 +41,7 @@ class sessionHandler {
                 winPercentage,
             });
 
-            ws.send(`Session initiated for session ID: ${uniqueSessionId}`);
+            sendMessage(ws, uniqueSessionId, { pin });
         }
     };
 
