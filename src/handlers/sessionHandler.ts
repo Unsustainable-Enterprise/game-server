@@ -3,7 +3,7 @@ import WebSocket from 'ws';
 import { sessions } from '../storage/sessionStorage';
 import { Message, SessionMessageEvent, Session, Participants } from '../config/sessionConfig';
 import { generatePin } from '../utils/generatePin';
-import { createSessionSchema } from '../config/schema/sessionSchema';
+import { createSessionSchema, messageSessionSchema } from '../config/schema/sessionSchema';
 import { sendMessage } from '../utils/sendMessage';
 
 class sessionHandler {
@@ -46,6 +46,13 @@ class sessionHandler {
     public messageSession = (ws: WebSocket, obj: Message) => {
         if (!obj?.token) {
             console.log('no token provided');
+            return;
+        }
+
+        const validation = messageSessionSchema.safeParse(obj);
+
+        if (!validation?.success) {
+            console.log('createSession validation failed');
             return;
         }
 
