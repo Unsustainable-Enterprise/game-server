@@ -8,8 +8,6 @@ import { sendMessage } from '../utils/sendMessage';
 
 class sessionHandler {
     public createSession = (ws: WebSocket, obj: Message) => {
-        console.log('hello');
-
         const validation = createSessionSchema.safeParse(obj);
 
         if (!validation?.success) {
@@ -46,24 +44,26 @@ class sessionHandler {
     };
 
     public messageSession = (ws: WebSocket, obj: Message) => {
-        if (obj?.token) {
-            const session = sessions.find((session) => session.id === obj.token);
-
-            if (!session) {
-                console.log('not found');
-                ws.send('Session does not exist!');
-                return;
-            }
-
-            if (obj.message.type === SessionMessageEvent.HOST) {
-                session.host.send(obj.message.toString());
-            } else if (obj.message.type === SessionMessageEvent.ALL) {
-                for (const participant of session.participants) {
-                    participant.ws.send(obj.message.data.toString());
-                }
-            }
-        } else {
+        if (!obj?.token) {
             console.log('no token provided');
+            return;
+        }
+
+        const session = sessions.find((session) => session.id === obj.token);
+
+        if (!session) {
+            console.log('session not found');
+            return;
+        }
+
+        const data = obj.message.data;
+
+        if (obj.message.type === SessionMessageEvent.HOST) {
+            sendMessage(ws, obj.token, { data });
+        } else if (obj.message.type === SessionMessageEvent.ALL) {
+            for (const participant of session.participants) {
+                sendMessage(participant.ws, obj.token, { data });
+            }
         }
     };
 }

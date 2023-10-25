@@ -4,7 +4,7 @@ export function sendMessage(ws: WebSocket, token: string, data: object) {
     const message = {
         token,
         message: {
-            data,
+            ...data,
         },
     };
 
