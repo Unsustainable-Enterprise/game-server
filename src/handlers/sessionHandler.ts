@@ -3,22 +3,10 @@ import WebSocket from 'ws';
 import { sessions } from '../storage/sessionStorage';
 import { Message, SessionMessageEvent, Session } from '../config/sessionConfig';
 import { generatePin } from '../utils/generatePin';
-import { z } from 'zod';
+import { createSessionSchema } from '../config/schema/sessionSchema';
 
 class sessionHandler {
     public createSession = (ws: WebSocket, obj: Message) => {
-        const createSessionSchema = z.object({
-            event: z.string().min(1),
-            message: z.object({
-                action: z.object({
-                    scenario: z.string().min(1),
-                    totalQuestions: z.number(),
-                    winPercentage: z.number(),
-                }),
-                type: z.string().min(1),
-            }),
-        });
-
         const validation = createSessionSchema.safeParse(obj);
 
         if (!validation?.success) {
