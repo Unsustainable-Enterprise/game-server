@@ -1,9 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 import WebSocket from 'ws';
 import { sessions } from '../storage/sessionStorage';
-import { Message, SessionMessageEvent, Session, Participants } from '../config/sessionConfig';
+import { Message, SessionMessageEvent, JoinSession, Participants } from '../config/sessionConfig';
 import { generatePin } from '../utils/generatePin';
-import { createSessionSchema, messageSessionSchema } from '../config/schema/sessionSchema';
+import {
+    createSessionSchema,
+    messageSessionSchema,
+    joinSessionSchema,
+} from '../config/schema/sessionSchema';
 import { sendMessage } from '../utils/sendMessage';
 
 class sessionHandler {
@@ -41,6 +45,36 @@ class sessionHandler {
 
             sendMessage(ws, uniqueSessionId, { pin });
         }
+    };
+
+    public joinSession = (ws: WebSocket, obj: JoinSession) => {
+        if (!obj?.pin) {
+            console.log('no pin provided');
+            return;
+        }
+
+        const validation = joinSessionSchema.safeParse(obj);
+
+        if (!validation?.success) {
+            console.log('joinSession validation failed');
+            return;
+        }
+
+        const lobby = sessions.find((session) => session.pin === obj.pin);
+
+        if (!lobby) {
+            console.log('session not found');
+            return;
+        }
+
+        const data = {
+            onParticipantJoin: true,
+        };
+
+        for (const participant of lobby.participants) {
+            sendMessage(participant.ws, lobby.id, { data });
+        }
+        lobby.participants.push({ ws, score: 0 });
     };
 
     public messageSession = (ws: WebSocket, obj: Message) => {

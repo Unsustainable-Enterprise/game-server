@@ -20,3 +20,8 @@ export const messageSessionSchema = z.object({
         type: z.string().min(1),
     }),
 });
+
+export const joinSessionSchema = z.object({
+    event: z.string().min(1),
+    pin: z.string().min(1),
+});

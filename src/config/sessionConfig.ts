@@ -16,6 +16,11 @@ export type Session = {
     winPercentage: number;
 };
 
+export type JoinSession = {
+    event: string;
+    pin: string;
+};
+
 export type Message = {
     event: string;
     token?: string;
