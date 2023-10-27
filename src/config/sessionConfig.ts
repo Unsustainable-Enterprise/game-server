@@ -11,20 +11,15 @@ export type Session = {
     pin: string;
     scenario: string;
     host: WebSocket;
-    participants: [{ ws: WebSocket; score: number }];
+    participants: [{ ws: WebSocket; name: string; score: number }];
     totalQuestions: number;
     winPercentage: number;
-};
-
-export type JoinSession = {
-    event: string;
-    pin: string;
 };
 
 export type Message = {
     event: string;
     token?: string;
-    message: { data: { [key: string]: string | number | boolean }; type: string };
+    message: { data: { [key: string]: string | number | boolean }; type?: string };
 };
 
 export type Participants = {

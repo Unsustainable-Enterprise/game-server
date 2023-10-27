@@ -36,6 +36,10 @@ wss.on(WebSocketEvent.CONNECTION, (ws: WebSocket, req) => {
                 sessionHandler.messageSession(ws, jsonMessage);
                 break;
             }
+            case WebSocketMessageEvent.JOIN_SESSION: {
+                sessionHandler.joinSession(ws, jsonMessage);
+                break;
+            }
             default: {
                 break;
             }
