@@ -1,3 +1,8 @@
+import WebSocket from 'ws';
+export interface ExtWebSocket extends WebSocket {
+    id: string;
+}
+
 export enum WebSocketEvent {
     MESSAGE = 'message',
     CLOSE = 'close',

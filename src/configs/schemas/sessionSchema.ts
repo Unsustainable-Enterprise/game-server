@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const createSessionSchema = z.object({
+export const createLobbySchema = z.object({
     event: z.string().min(1),
     message: z.object({
         data: z.object({
@@ -12,7 +12,7 @@ export const createSessionSchema = z.object({
     }),
 });
 
-export const messageSessionSchema = z.object({
+export const messageLobbySchema = z.object({
     event: z.string().min(1),
     token: z.string().min(1),
     message: z.object({
@@ -21,7 +21,7 @@ export const messageSessionSchema = z.object({
     }),
 });
 
-export const joinSessionSchema = z.object({
+export const joinLobbySchema = z.object({
     event: z.string().min(1),
     message: z.object({
         data: z.object({

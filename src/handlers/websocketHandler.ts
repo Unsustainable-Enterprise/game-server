@@ -1,10 +1,10 @@
-import WebSocket from 'ws';
-import { WebSocketEvent, WebSocketMessageEvent } from '../config/websocketConfig';
+import { WebSocketEvent, WebSocketMessageEvent } from '../configs/websocketConfig';
 import { stringToJSON } from '../utils/stringToJson';
-import { sessionHandler } from './index';
+import { LobbyHandler } from '../handlers/lobbyHandler';
+import { ExtWebSocket } from '../configs/websocketConfig';
 
-class WebSocketHandler {
-    public handleWebsocket(ws: WebSocket, req: any) {
+export namespace WebSocketHandler {
+    export function handleWebsocket(ws: ExtWebSocket, req: any) {
         console.log('A user connected');
 
         ws.send('Welcome to the server!');
@@ -19,15 +19,15 @@ class WebSocketHandler {
 
             switch (jsonMessage.event) {
                 case WebSocketMessageEvent.CREATE_SESSION: {
-                    sessionHandler.createSession(ws, jsonMessage);
+                    LobbyHandler.createLobby(ws, jsonMessage);
                     break;
                 }
-                case WebSocketMessageEvent.MESSAGE_SESSION: {
-                    sessionHandler.messageSession(ws, jsonMessage);
-                    break;
-                }
+                // case WebSocketMessageEvent.MESSAGE_SESSION: {
+                //     LobbyHandler.messageSession(ws, jsonMessage);
+                //     break;
+                // }
                 case WebSocketMessageEvent.JOIN_SESSION: {
-                    sessionHandler.joinSession(ws, jsonMessage);
+                    LobbyHandler.joinLobby(ws, jsonMessage);
                     break;
                 }
                 default: {
@@ -37,10 +37,8 @@ class WebSocketHandler {
         });
 
         ws.on(WebSocketEvent.CLOSE, () => {
-            sessionHandler.onDissconnet(ws);
+            // LobbyHandler.onDissconnet(ws);
             console.log('A user disconnected');
         });
     }
 }
-
-export default new WebSocketHandler();

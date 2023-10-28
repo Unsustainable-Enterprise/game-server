@@ -1,17 +1,18 @@
 import WebSocket from 'ws';
+import { ExtWebSocket } from './websocketConfig';
 
-export enum SessionMessageEvent {
+export enum LobbyMessageEvent {
     ALL = 'all',
     HOST = 'host',
     NONE = 'none',
 }
 
-export type Session = {
+export type Lobby = {
     id: string;
     pin: string;
     scenario: string;
-    host: WebSocket;
-    participants: [{ ws: WebSocket; name: string; score: number }];
+    host: string;
+    participants: Participants[];
     totalQuestions: number;
     winPercentage: number;
 };
@@ -23,6 +24,7 @@ export type Message = {
 };
 
 export type Participants = {
-    ws: WebSocket;
+    id: string;
     score: number;
+    name: string;
 };
