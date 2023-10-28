@@ -1,4 +1,4 @@
 import sessionHandler from './sessionHandler';
-import WebSocketHandler from './webSocketHandler';
+import webSocketHandler from './webSocketHandler';
 
-export { sessionHandler, WebSocketHandler };
+export { sessionHandler, webSocketHandler };

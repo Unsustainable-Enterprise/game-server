@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import { WebSocketEvent, WebSocketMessageEvent } from '../config/websocketConfig';
+import { WebSocketEvent, WebSocketMessageEvent } from '../configs/websocketConfig';
 import { stringToJSON } from '../utils/stringToJson';
 import { sessionHandler } from './index';
 

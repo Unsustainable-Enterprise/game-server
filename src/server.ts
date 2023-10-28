@@ -1,9 +1,9 @@
 import * as https from 'https';
 import express, { json } from 'express';
 import WebSocket from 'ws';
-import { WebSocketEvent, WebSocketMessageEvent } from './config/websocketConfig';
+import { WebSocketEvent, WebSocketMessageEvent } from './configs/websocketConfig';
 import fs from 'fs';
-import { WebSocketHandler } from './handlers/index';
+import { webSocketHandler } from './handlers/index';
 
 const app = express();
 const httpsOptions = {
@@ -14,7 +14,7 @@ const server = https.createServer(httpsOptions, app);
 const wss = new WebSocket.Server({ server });
 
 wss.on(WebSocketEvent.CONNECTION, (ws: WebSocket, req) => {
-    WebSocketHandler.handleWebsocket(ws, req);
+    webSocketHandler.handleWebsocket(ws, req);
 });
 
 server.listen(3000, () => {

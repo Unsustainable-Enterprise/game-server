@@ -1,14 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
 import WebSocket from 'ws';
 import { sessions } from '../storage/sessionStorage';
-import { Message, SessionMessageEvent, Participants } from '../config/sessionConfig';
+import { Message, SessionMessageEvent, Participants } from '../configs/sessionConfig';
 import { generatePin } from '../utils/generatePin';
 import {
     createSessionSchema,
     messageSessionSchema,
     joinSessionSchema,
-} from '../config/schema/sessionSchema';
+} from '../configs/schemas/sessionSchema';
 import { sendMessage } from '../utils/sendMessage';
+import { sessionModel } from '../models';
 
 class sessionHandler {
     public createSession = (ws: WebSocket, obj: Message) => {
