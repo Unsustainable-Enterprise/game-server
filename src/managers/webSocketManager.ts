@@ -1,4 +1,4 @@
-import { ExtWebSocket } from '../configs/websocketConfig';
+import { ExtWebSocket } from '../configs/webSocketConfig';
 import { v4 as uuidv4 } from 'uuid';
 
 export namespace WebSocketManager {

@@ -4,7 +4,7 @@ import { createLobbySchema, joinLobbySchema } from '../configs/schemas/sessionSc
 import { sendMessage } from '../utils/sendMessage';
 import { LobbyModel } from '../models/lobbyModel';
 import { isLobbyExists } from '../utils/isLobbyExists';
-import { ExtWebSocket } from '../configs/websocketConfig';
+import { ExtWebSocket } from '../configs/webSocketConfig';
 import { LobbyManager } from '../managers/lobbyManager';
 import { WebSocketManager } from '../managers/webSocketManager';
 

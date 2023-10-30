@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Message, Participants, Lobby } from '../configs/sessionConfig';
 import { generatePin } from '../utils/generatePin';
 import sqlite3 from 'sqlite3';
-import { ExtWebSocket } from '../configs/websocketConfig';
+import { ExtWebSocket } from '../configs/webSocketConfig';
 
 export class LobbyModel {
     private id: string;

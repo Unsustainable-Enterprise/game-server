@@ -1,7 +1,7 @@
 import * as https from 'https';
-import express, { json } from 'express';
+import express from 'express';
 import WebSocket from 'ws';
-import { ExtWebSocket, WebSocketEvent, WebSocketMessageEvent } from './configs/websocketConfig';
+import { ExtWebSocket, WebSocketEvent } from './configs/webSocketConfig';
 import fs from 'fs';
 import { WebSocketHandler } from './handlers/webSocketHandler';
 import { DatabaseModel } from './models/databaseModel';

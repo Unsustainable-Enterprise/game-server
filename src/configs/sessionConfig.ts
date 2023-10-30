@@ -1,6 +1,3 @@
-import WebSocket from 'ws';
-import { ExtWebSocket } from './websocketConfig';
-
 export enum LobbyMessageEvent {
     ALL = 'all',
     HOST = 'host',

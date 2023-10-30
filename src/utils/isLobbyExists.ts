@@ -1,7 +1,7 @@
 import sqlite3 from 'sqlite3';
 import WebSocket from 'ws';
 
-const db = new sqlite3.Database('mydatabase.db'); // Adjust the database path
+const db = new sqlite3.Database('mydatabase.db');
 
 export async function isLobbyExists(host: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
