@@ -3,6 +3,11 @@ import { LobbyModel } from '../models/lobbyModel';
 export namespace LobbyManager {
     const lobbies: LobbyModel[] = [];
 
+    // FOR TESTING PURPOSES ONLY
+    export function getLobbies(): LobbyModel[] {
+        return lobbies;
+    }
+
     export function addLobby(lobby: LobbyModel): void {
         lobbies.push(lobby);
     }

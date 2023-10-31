@@ -22,10 +22,10 @@ export namespace WebSocketHandler {
                     LobbyHandler.createLobby(ws, jsonMessage);
                     break;
                 }
-                // case WebSocketMessageEvent.MESSAGE_SESSION: {
-                //     LobbyHandler.messageSession(ws, jsonMessage);
-                //     break;
-                // }
+                case WebSocketMessageEvent.MESSAGE_LOBBY: {
+                    LobbyHandler.messageLobby(ws, jsonMessage);
+                    break;
+                }
                 case WebSocketMessageEvent.JOIN_LOBBY: {
                     LobbyHandler.joinLobby(ws, jsonMessage);
                     break;
@@ -37,7 +37,7 @@ export namespace WebSocketHandler {
         });
 
         ws.on(WebSocketEvent.CLOSE, () => {
-            // LobbyHandler.onDissconnet(ws);
+            LobbyHandler.onDissconnet(ws);
             console.log('A user disconnected');
         });
     }

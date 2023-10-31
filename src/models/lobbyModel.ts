@@ -3,6 +3,7 @@ import { Message, Participants, Lobby } from '../configs/lobbyConfig';
 import { generatePin } from '../utils/generatePin';
 import sqlite3 from 'sqlite3';
 import { ExtWebSocket } from '../configs/webSocketConfig';
+import { LobbyManager } from '../managers/lobbyManager';
 
 export class LobbyModel {
     private id: string;
@@ -82,6 +83,94 @@ export class LobbyModel {
                         reject(err);
                     } else {
                         this.participants.push({ id: ws.id, name, score: 0 });
+                        resolve();
+                    }
+                });
+            });
+
+            callback(null);
+        } catch (err: any) {
+            callback(err);
+        }
+    }
+
+    public async removeParticipant(
+        lobbyId: string,
+        participantId: string,
+        callback: (err: Error | null) => void
+    ) {
+        const deleteParticipantQuery = `
+            DELETE FROM participants
+            WHERE lobbyId = ? AND id = ?;
+        `;
+
+        try {
+            await new Promise<void>((resolve, reject) => {
+                this.db.run(deleteParticipantQuery, [lobbyId, participantId], (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        const index = this.participants.findIndex(
+                            (participant) => participant.id === participantId
+                        );
+                        if (index !== -1) {
+                            this.participants.splice(index, 1);
+                        }
+                        resolve();
+                    }
+                });
+            });
+
+            callback(null);
+        } catch (err: any) {
+            callback(err);
+        }
+    }
+
+    public async removeLobby(id: string, callback: (err: Error | null) => void) {
+        const deleteParticipantQuery = `
+            DELETE FROM lobbies
+            WHERE id = ?;
+        `;
+
+        try {
+            await new Promise<void>((resolve, reject) => {
+                this.removeAllParticipants(id, (removeParticipantsErr) => {
+                    if (removeParticipantsErr) {
+                        reject(removeParticipantsErr);
+                    } else {
+                        this.db.run(deleteParticipantQuery, [id], (err) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                LobbyManager.removeLobby(id);
+                                resolve();
+                            }
+                        });
+                    }
+                });
+            });
+
+            this.db.close();
+
+            callback(null);
+        } catch (err: any) {
+            callback(err);
+        }
+    }
+
+    private async removeAllParticipants(lobbyId: string, callback: (err: Error | null) => void) {
+        const deleteAllParticipantsQuery = `
+            DELETE FROM participants
+            WHERE lobbyId = ?;
+        `;
+
+        try {
+            await new Promise<void>((resolve, reject) => {
+                this.db.run(deleteAllParticipantsQuery, [lobbyId], (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
                         resolve();
                     }
                 });
