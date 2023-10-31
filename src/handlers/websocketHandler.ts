@@ -1,7 +1,7 @@
-import { WebSocketEvent, WebSocketMessageEvent } from '../configs/webSocketConfig';
+import WebSocket from 'ws';
+import { WebSocketEvent, WebSocketMessageEvent, ExtWebSocket } from '../configs/webSocketConfig';
 import { stringToJSON } from '../utils/stringToJson';
 import { LobbyHandler } from './lobbyHandler';
-import { ExtWebSocket } from '../configs/webSocketConfig';
 
 export namespace WebSocketHandler {
     export function handleWebsocket(ws: ExtWebSocket, req: any) {
