@@ -1,6 +1,9 @@
-import WebSocket from 'ws';
-import { Message } from '../configs/lobbyConfig';
-import { createLobbySchema, joinLobbySchema } from '../configs/schemas/lobbySchema';
+import { Message, LobbyMessageEvent } from '../configs/lobbyConfig';
+import {
+    createLobbySchema,
+    joinLobbySchema,
+    messageLobbySchema,
+} from '../configs/schemas/lobbySchema';
 import { sendMessage } from '../utils/sendMessage';
 import { LobbyModel } from '../models/lobbyModel';
 import { isLobbyExists } from '../utils/isLobbyExists';
@@ -90,36 +93,42 @@ export namespace LobbyHandler {
         }
     }
 
-    // export function messageSession(ws: WebSocket, obj: Message) {
-    //     if (!obj?.token) {
-    //         console.log('no token provided');
-    //         return;
-    //     }
+    export function messageLobby(ws: ExtWebSocket, obj: Message) {
+        if (!obj?.token) {
+            console.log('no token provided');
+            return;
+        }
 
-    //     const validation = messageSessionSchema.safeParse(obj);
+        const validation = messageLobbySchema.safeParse(obj);
 
-    //     if (!validation?.success) {
-    //         console.log('createSession validation failed');
-    //         return;
-    //     }
+        if (!validation?.success) {
+            console.log('messageLobby validation failed');
+            return;
+        }
 
-    //     const lobby = sessions.find((session) => session.id === obj.token);
+        const lobby = LobbyManager.findlobbyByToken(obj.token);
 
-    //     if (!lobby) {
-    //         console.log('session not found');
-    //         return;
-    //     }
+        if (!lobby) {
+            console.log('session not found');
+            return;
+        }
 
-    //     const data = obj.message.data;
+        const data = obj.message.data;
 
-    //     if (obj.message.type === LobbyMessageEvent.HOST) {
-    //         sendMessage(ws, obj.token, { data });
-    //     } else if (obj.message.type === LobbyMessageEvent.ALL) {
-    //         for (const participant of lobby.participants) {
-    //             sendMessage(participant.ws, obj.token, { data });
-    //         }
-    //     }
-    // }
+        if (obj.message.type === LobbyMessageEvent.HOST) {
+            sendMessage(ws, obj.token, { data });
+        } else if (obj.message.type === LobbyMessageEvent.ALL) {
+            for (const participant of lobby.getLobbyData().participants) {
+                sendMessage(
+                    WebSocketManager.getWebSocketSession(participant.id),
+                    lobby.getLobbyData().id,
+                    {
+                        data,
+                    }
+                );
+            }
+        }
+    }
 
     // export function onDissconnet(ws: WebSocket) {
     //     for (const lobby of sessions) {

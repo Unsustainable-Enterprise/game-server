@@ -17,3 +17,5 @@ function checkForDuplicate(pin: string): boolean {
 
     return false;
 }
+
+generatePin();

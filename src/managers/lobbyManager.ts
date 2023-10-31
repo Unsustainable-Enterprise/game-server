@@ -19,6 +19,10 @@ export namespace LobbyManager {
         return lobbies.find((item) => item.getLobbyData().pin === pin);
     }
 
+    export function findlobbyByToken(token: string): LobbyModel | undefined {
+        return lobbies.find((item) => item.getLobbyData().id === token);
+    }
+
     export function findLobbyByParticipantId(participantId: string): LobbyModel | undefined {
         return lobbies.find((lobby) =>
             lobby
