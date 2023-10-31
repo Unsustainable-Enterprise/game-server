@@ -37,7 +37,7 @@ export namespace WebSocketHandler {
         });
 
         ws.on(WebSocketEvent.CLOSE, () => {
-            LobbyHandler.onDissconnet(ws);
+            LobbyHandler.onDisconnect(ws);
             console.log('A user disconnected');
         });
     }

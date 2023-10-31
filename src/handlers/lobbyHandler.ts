@@ -130,7 +130,7 @@ export namespace LobbyHandler {
         }
     }
 
-    export async function onDissconnet(ws: ExtWebSocket) {
+    export async function onDisconnect(ws: ExtWebSocket) {
         const lobby = LobbyManager.findLobbyByParticipantId(ws.id);
 
         if (lobby) {
