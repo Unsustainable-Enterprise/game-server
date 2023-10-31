@@ -10,7 +10,7 @@ export enum WebSocketEvent {
 }
 
 export enum WebSocketMessageEvent {
-    CREATE_SESSION = 'create_session',
-    MESSAGE_SESSION = 'message_session',
-    JOIN_SESSION = 'join_session',
+    CREATE_LOBBY = 'create_lobby',
+    MESSAGE_LOBBY = 'message_lobby',
+    JOIN_LOBBY = 'join_lobby',
 }

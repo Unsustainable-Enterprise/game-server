@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Message, Participants, Lobby } from '../configs/sessionConfig';
+import { Message, Participants, Lobby } from '../configs/lobbyConfig';
 import { generatePin } from '../utils/generatePin';
 import sqlite3 from 'sqlite3';
 import { ExtWebSocket } from '../configs/webSocketConfig';

@@ -18,7 +18,7 @@ export namespace WebSocketHandler {
             }
 
             switch (jsonMessage.event) {
-                case WebSocketMessageEvent.CREATE_SESSION: {
+                case WebSocketMessageEvent.CREATE_LOBBY: {
                     LobbyHandler.createLobby(ws, jsonMessage);
                     break;
                 }
@@ -26,7 +26,7 @@ export namespace WebSocketHandler {
                 //     LobbyHandler.messageSession(ws, jsonMessage);
                 //     break;
                 // }
-                case WebSocketMessageEvent.JOIN_SESSION: {
+                case WebSocketMessageEvent.JOIN_LOBBY: {
                     LobbyHandler.joinLobby(ws, jsonMessage);
                     break;
                 }

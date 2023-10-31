@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
-import { Message } from '../configs/sessionConfig';
-import { createLobbySchema, joinLobbySchema } from '../configs/schemas/sessionSchema';
+import { Message } from '../configs/lobbyConfig';
+import { createLobbySchema, joinLobbySchema } from '../configs/schemas/lobbySchema';
 import { sendMessage } from '../utils/sendMessage';
 import { LobbyModel } from '../models/lobbyModel';
 import { isLobbyExists } from '../utils/isLobbyExists';
@@ -13,7 +13,7 @@ export namespace LobbyHandler {
         const validation = createLobbySchema.safeParse(obj);
 
         if (!validation?.success) {
-            console.log('createSession validation failed');
+            console.log('createLobby validation failed');
             return;
         }
 
@@ -58,7 +58,7 @@ export namespace LobbyHandler {
         const lobby = LobbyManager.findlobbyByPin(obj.message.data.pin.toString());
 
         if (!lobby) {
-            console.log('session not found');
+            console.log('lobby not found');
             return;
         }
 
