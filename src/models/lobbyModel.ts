@@ -4,6 +4,7 @@ import { generatePin } from '../utils/generatePin';
 import sqlite3 from 'sqlite3';
 import { ExtWebSocket } from '../types/webSocketTypes';
 import { LobbyManager } from '../managers/lobbyManager';
+import { dbName } from '../configs/dbConfig';
 
 export class LobbyModel {
     private id: string;
@@ -24,7 +25,7 @@ export class LobbyModel {
         this.winPercentage = Number(obj.message.data.winPercentage) || 51;
     }
 
-    db = new sqlite3.Database('mydatabase.db');
+    db = new sqlite3.Database(dbName);
 
     public getLobbyData(): Lobby {
         return {

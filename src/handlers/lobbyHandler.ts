@@ -12,6 +12,8 @@ export namespace LobbyHandler {
     export async function createLobby(ws: ExtWebSocket, obj: Message) {
         const validation = createLobbySchema.safeParse(obj);
 
+        console.log('here');
+
         if (!validation?.success) {
             console.log('createLobby validation failed');
             return;

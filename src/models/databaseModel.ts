@@ -1,6 +1,7 @@
 import sqlite3 from 'sqlite3';
+import { dbName } from '../configs/dbConfig';
 
-const db = new sqlite3.Database('mydatabase.db');
+const db = new sqlite3.Database(dbName);
 
 export namespace DatabaseModel {
     export function init() {
