@@ -1,5 +1,5 @@
-import WebSocket from 'ws';
-import { WebSocketEvent, WebSocketMessageEvent, ExtWebSocket } from '../configs/webSocketConfig';
+import { WebSocketEvent, WebSocketMessageEvent } from '../configs/webSocketConfig';
+import { ExtWebSocket } from '../types/webSocketTypes';
 import { stringToJSON } from '../utils/stringToJson';
 import { LobbyHandler } from './lobbyHandler';
 

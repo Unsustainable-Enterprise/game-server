@@ -1,13 +1,10 @@
-import { Message, LobbyMessageEvent, Participants } from '../configs/lobbyConfig';
-import {
-    createLobbySchema,
-    joinLobbySchema,
-    messageLobbySchema,
-} from '../configs/schemas/lobbySchema';
+import { Message, Participants } from '../types/lobbyTypes';
+import { LobbyMessageEvent } from '../configs/lobbyConfig';
+import { createLobbySchema, joinLobbySchema, messageLobbySchema } from '../schemas/lobbySchema';
 import { sendMessage } from '../utils/sendMessage';
 import { LobbyModel } from '../models/lobbyModel';
 import { isLobbyExists } from '../utils/isLobbyExists';
-import { ExtWebSocket } from '../configs/webSocketConfig';
+import { ExtWebSocket } from '../types/webSocketTypes';
 import { LobbyManager } from '../managers/lobbyManager';
 import { WebSocketManager } from '../managers/webSocketManager';
 

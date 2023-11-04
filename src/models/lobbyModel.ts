@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Message, Participants, Lobby } from '../configs/lobbyConfig';
+import { Message, Participants, Lobby } from '../types/lobbyTypes';
 import { generatePin } from '../utils/generatePin';
 import sqlite3 from 'sqlite3';
-import { ExtWebSocket } from '../configs/webSocketConfig';
+import { ExtWebSocket } from '../types/webSocketTypes';
 import { LobbyManager } from '../managers/lobbyManager';
 
 export class LobbyModel {
