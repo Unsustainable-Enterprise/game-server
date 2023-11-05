@@ -7,12 +7,11 @@ import { isLobbyExists } from '../utils/isLobbyExists';
 import { ExtWebSocket } from '../types/webSocketTypes';
 import { LobbyManager } from '../managers/lobbyManager';
 import { WebSocketManager } from '../managers/webSocketManager';
+import { WebSocketMessageEvent } from '../configs/webSocketConfig';
 
 export namespace LobbyHandler {
     export async function createLobby(ws: ExtWebSocket, obj: Message) {
         const validation = createLobbySchema.safeParse(obj);
-
-        console.log('here');
 
         if (!validation?.success) {
             console.log('createLobby validation failed');
@@ -41,7 +40,7 @@ export namespace LobbyHandler {
 
         LobbyManager.addLobby(lobby);
 
-        sendMessage(ws, id, { pin });
+        sendMessage(ws, WebSocketMessageEvent.CREATE_LOBBY, id, { pin });
     }
 
     export async function joinLobby(ws: ExtWebSocket, obj: Message) {
@@ -84,6 +83,7 @@ export namespace LobbyHandler {
         for (const participant of lobby.getLobbyData().participants) {
             sendMessage(
                 WebSocketManager.getWebSocketSession(participant.id),
+                WebSocketMessageEvent.JOIN_LOBBY,
                 lobby.getLobbyData().id,
                 {
                     data,
@@ -115,11 +115,12 @@ export namespace LobbyHandler {
         const data = obj.message.data;
 
         if (obj.message.type === LobbyMessageEvent.HOST) {
-            sendMessage(ws, obj.token, { data });
+            sendMessage(ws, WebSocketMessageEvent.MESSAGE_LOBBY, obj.token, { data });
         } else if (obj.message.type === LobbyMessageEvent.ALL) {
             for (const participant of lobby.getLobbyData().participants) {
                 sendMessage(
                     WebSocketManager.getWebSocketSession(participant.id),
+                    WebSocketMessageEvent.MESSAGE_LOBBY,
                     lobby.getLobbyData().id,
                     {
                         data,
@@ -186,7 +187,12 @@ export namespace LobbyHandler {
     ) {
         for (const participant of participants) {
             if (participant.id === disconnectedWs.id) continue;
-            sendMessage(WebSocketManager.getWebSocketSession(participant.id), token, data);
+            sendMessage(
+                WebSocketManager.getWebSocketSession(participant.id),
+                WebSocketMessageEvent.MESSAGE_LOBBY,
+                token,
+                data
+            );
         }
     }
 }

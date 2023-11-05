@@ -1,7 +1,8 @@
 import WebSocket from 'ws';
 
-export function sendMessage(ws: WebSocket, token: string, data: object) {
+export function sendMessage(ws: WebSocket, event: string, token: string, data: object) {
     const message = {
+        event,
         token,
         message: {
             ...data,
