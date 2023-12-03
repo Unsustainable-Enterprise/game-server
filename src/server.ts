@@ -2,10 +2,10 @@ import * as https from 'https';
 import express from 'express';
 import cors from 'cors';
 import WebSocket from 'ws';
-import { WebSocketEvent } from './configs/webSocketConfig1';
+import { WebSocketEvent } from './configs/webSocketConfig';
 import { ExtWebSocket } from './types/webSocketTypes';
 import fs from 'fs';
-import { WebSocketHandler } from './handlers/webSocketHandler1';
+import { WebSocketHandler } from './handlers/webSocketHandler';
 import { DatabaseModel } from './models/databaseModel';
 import { WebSocketManager } from './managers/webSocketManager';
 
