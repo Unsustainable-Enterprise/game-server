@@ -7,8 +7,6 @@ export namespace WebSocketHandler {
     export function handleWebsocket(ws: ExtWebSocket, req: any) {
         console.log('A user connected');
 
-        ws.send('Welcome to the server!');
-
         ws.on(WebSocketEvent.MESSAGE, (message: string) => {
             const jsonMessage = stringToJSON(message);
 
