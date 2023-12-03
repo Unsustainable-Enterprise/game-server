@@ -7,7 +7,7 @@ import { isLobbyExists } from '../utils/isLobbyExists';
 import { ExtWebSocket } from '../types/webSocketTypes';
 import { LobbyManager } from '../managers/lobbyManager';
 import { WebSocketManager } from '../managers/webSocketManager';
-import { WebSocketMessageEvent } from '../configs/webSocketConfig';
+import { WebSocketMessageEvent } from '../configs/webSocketConfig1';
 
 export namespace LobbyHandler {
     export async function createLobby(ws: ExtWebSocket, obj: Message) {
