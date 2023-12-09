@@ -76,17 +76,23 @@ export namespace LobbyHandler {
             }
         );
 
-        const data = {
-            onParticipantJoin: true,
-        };
+        const participantsNames = lobby
+            .getLobbyData()
+            .participants.map((participant) => participant.name);
+
+        sendMessage(ws, WebSocketMessageEvent.JOIN_LOBBY, lobby.getLobbyData().id, {
+            success: true,
+            participantsNames,
+        });
 
         for (const participant of lobby.getLobbyData().participants) {
+            if (participant.id === ws.id) continue;
             sendMessage(
                 WebSocketManager.getWebSocketSession(participant.id),
-                WebSocketMessageEvent.JOIN_LOBBY,
+                WebSocketMessageEvent.PARTICIPANT_JOINED_LOBBY,
                 lobby.getLobbyData().id,
                 {
-                    data,
+                    participantsNames,
                 }
             );
         }
