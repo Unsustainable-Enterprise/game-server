@@ -40,7 +40,10 @@ export namespace LobbyHandler {
 
         LobbyManager.addLobby(lobby);
 
-        sendMessage(ws, WebSocketMessageEvent.CREATE_LOBBY, id, { pin });
+        sendMessage(ws, WebSocketMessageEvent.CREATE_LOBBY, id, {
+            pin,
+            user_name: obj.message.data.name.toString(),
+        });
     }
 
     export async function joinLobby(ws: ExtWebSocket, obj: Message) {
@@ -82,7 +85,8 @@ export namespace LobbyHandler {
 
         sendMessage(ws, WebSocketMessageEvent.JOIN_LOBBY, lobby.getLobbyData().id, {
             success: true,
-            participantsNames,
+            user_name: obj.message.data.name.toString(),
+            participants: participantsNames,
         });
 
         for (const participant of lobby.getLobbyData().participants) {
@@ -92,7 +96,7 @@ export namespace LobbyHandler {
                 WebSocketMessageEvent.PARTICIPANT_JOINED_LOBBY,
                 lobby.getLobbyData().id,
                 {
-                    participantsNames,
+                    participants: participantsNames,
                 }
             );
         }
