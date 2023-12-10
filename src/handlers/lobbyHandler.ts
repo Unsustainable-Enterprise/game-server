@@ -145,64 +145,65 @@ export namespace LobbyHandler {
 
         if (lobby) {
             if (lobby.getLobbyData().host === ws.id) {
-                const data = {
-                    onHostDisconnect: true,
-                };
-
-                disconnectMessage(ws, lobby.getLobbyData().participants, lobby.getLobbyData().id, {
-                    data,
-                });
-
-                await lobby.removeLobby(lobby.getLobbyData().id, (err: any) => {
-                    if (err) {
-                        console.error('Error inserting data:', err.message);
-                    } else {
-                        console.log('Data removed successfully.');
-                    }
-                });
-
-                console.log(`Deleted lobby ${lobby.getLobbyData().id} because the host left`);
-
-                console.log(LobbyManager.getLobbies());
-
+                lobbyHostLeave(lobby);
                 return;
             } else {
-                const data = {
-                    onParticipantDisconnect: true,
-                };
-
-                disconnectMessage(ws, lobby.getLobbyData().participants, lobby.getLobbyData().id, {
-                    data,
-                });
-
-                await lobby.removeParticipant(lobby.getLobbyData().id, ws.id, (err: any) => {
-                    if (err) {
-                        console.error('Error inserting data:', err.message);
-                    } else {
-                        console.log('Data removed successfully.');
-                    }
-                });
+                lobbyParticipantLeave(lobby);
+                return;
             }
-            console.log(`Removed user from lobby ${lobby.getLobbyData().id}`);
-
-            return;
         }
-    }
 
-    function disconnectMessage(
-        disconnectedWs: ExtWebSocket,
-        participants: Participants[],
-        token: string,
-        data: object
-    ) {
-        for (const participant of participants) {
-            if (participant.id === disconnectedWs.id) continue;
-            sendMessage(
-                WebSocketManager.getWebSocketSession(participant.id),
-                WebSocketMessageEvent.MESSAGE_LOBBY,
-                token,
-                data
-            );
+        function disconnectMessage(
+            disconnectedWs: ExtWebSocket,
+            participants: Participants[],
+            token: string,
+            data: object
+        ) {
+            for (const participant of participants) {
+                if (participant.id === disconnectedWs.id) continue;
+                sendMessage(
+                    WebSocketManager.getWebSocketSession(participant.id),
+                    WebSocketMessageEvent.LEAVE_LOBBY,
+                    token,
+                    data
+                );
+            }
+        }
+
+        async function lobbyHostLeave(lobby: LobbyModel) {
+            const data = {
+                onHostDisconnect: true,
+            };
+
+            disconnectMessage(ws, lobby.getLobbyData().participants, lobby.getLobbyData().id, {
+                data,
+            });
+
+            await lobby.removeLobby(lobby.getLobbyData().id, (err: any) => {
+                if (err) {
+                    console.error('Error inserting data:', err.message);
+                } else {
+                    console.log('Data removed successfully.');
+                }
+            });
+        }
+
+        async function lobbyParticipantLeave(lobby: LobbyModel) {
+            const data = {
+                onParticipantDisconnect: true,
+            };
+
+            disconnectMessage(ws, lobby.getLobbyData().participants, lobby.getLobbyData().id, {
+                data,
+            });
+
+            await lobby.removeParticipant(lobby.getLobbyData().id, ws.id, (err: any) => {
+                if (err) {
+                    console.error('Error inserting data:', err.message);
+                } else {
+                    console.log('Data removed successfully.');
+                }
+            });
         }
     }
 }

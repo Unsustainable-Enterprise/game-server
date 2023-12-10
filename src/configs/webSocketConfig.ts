@@ -9,4 +9,5 @@ export enum WebSocketMessageEvent {
     MESSAGE_LOBBY = 'message_lobby',
     JOIN_LOBBY = 'join_lobby',
     PARTICIPANT_JOINED_LOBBY = 'participant_joined_lobby',
+    LEAVE_LOBBY = 'leave_lobby',
 }

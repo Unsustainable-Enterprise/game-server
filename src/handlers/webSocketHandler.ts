@@ -28,6 +28,10 @@ export namespace WebSocketHandler {
                     LobbyHandler.joinLobby(ws, jsonMessage);
                     break;
                 }
+                case WebSocketMessageEvent.LEAVE_LOBBY: {
+                    LobbyHandler.onDisconnect(ws);
+                    break;
+                }
                 default: {
                     break;
                 }
