@@ -171,12 +171,8 @@ export namespace LobbyHandler {
         }
 
         async function lobbyHostLeave(lobby: LobbyModel) {
-            const data = {
-                onHostDisconnect: true,
-            };
-
             disconnectMessage(ws, lobby.getLobbyData().participants, lobby.getLobbyData().id, {
-                data,
+                is_host: true,
             });
 
             await lobby.removeLobby(lobby.getLobbyData().id, (err: any) => {
@@ -189,20 +185,17 @@ export namespace LobbyHandler {
         }
 
         async function lobbyParticipantLeave(lobby: LobbyModel) {
-            const data = {
-                onParticipantDisconnect: true,
-            };
-
-            disconnectMessage(ws, lobby.getLobbyData().participants, lobby.getLobbyData().id, {
-                data,
-            });
-
             await lobby.removeParticipant(lobby.getLobbyData().id, ws.id, (err: any) => {
                 if (err) {
                     console.error('Error inserting data:', err.message);
                 } else {
                     console.log('Data removed successfully.');
                 }
+            });
+
+            disconnectMessage(ws, lobby.getLobbyData().participants, lobby.getLobbyData().id, {
+                is_host: false,
+                participants: lobby.getLobbyData().participants.map((user) => user.name),
             });
         }
     }
