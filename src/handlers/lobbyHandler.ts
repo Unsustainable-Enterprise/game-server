@@ -29,6 +29,7 @@ export namespace LobbyHandler {
         const lobbyData = lobby.getLobbyData();
         const id = lobbyData.id;
         const pin = lobbyData.pin;
+        const scenario = lobbyData.scenario;
 
         await lobby.insertLobbyData(lobbyData, (err: any) => {
             if (err) {
@@ -43,6 +44,7 @@ export namespace LobbyHandler {
         sendMessage(ws, WebSocketMessageEvent.CREATE_LOBBY, id, {
             pin,
             user_name: obj.message.data.name.toString(),
+            scenario,
         });
     }
 
@@ -86,6 +88,7 @@ export namespace LobbyHandler {
         sendMessage(ws, WebSocketMessageEvent.JOIN_LOBBY, lobby.getLobbyData().id, {
             success: true,
             user_name: obj.message.data.name.toString(),
+            scenario: lobby.getLobbyData().scenario,
             participants: participantsNames,
         });
 
