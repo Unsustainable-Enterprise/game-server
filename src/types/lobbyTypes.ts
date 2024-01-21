@@ -4,8 +4,8 @@ export type Lobby = {
     scenario: string;
     host: string;
     participants: Participants[];
-    totalQuestions: number;
-    winPercentage: number;
+    total_questions: number;
+    win_percentage: number;
 };
 
 export type Message = {

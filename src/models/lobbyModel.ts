@@ -12,8 +12,8 @@ export class LobbyModel {
     private scenario: string;
     private host: string;
     private participants: Participants[];
-    private totalQuestions: number;
-    private winPercentage: number;
+    private total_questions: number;
+    private win_percentage: number;
 
     constructor(ws: ExtWebSocket, obj: Message) {
         this.id = uuidv4();
@@ -21,8 +21,8 @@ export class LobbyModel {
         this.scenario = obj.message.data.scenario.toString();
         this.host = ws.id;
         this.participants = [{ id: ws.id, name: obj.message.data.name.toString(), score: 0 }];
-        this.totalQuestions = Number(obj.message.data.totalQuestions);
-        this.winPercentage = Number(obj.message.data.winPercentage) || 51;
+        this.total_questions = Number(obj.message.data.total_questions);
+        this.win_percentage = Number(obj.message.data.win_percentage) || 51;
     }
 
     db = new sqlite3.Database(dbName);
@@ -34,26 +34,31 @@ export class LobbyModel {
             scenario: this.scenario,
             host: this.host,
             participants: this.participants,
-            totalQuestions: this.totalQuestions,
-            winPercentage: this.winPercentage,
+            total_questions: this.total_questions,
+            win_percentage: this.win_percentage,
         };
     }
 
     public insertLobbyData(lobbyData: Lobby, callback: (err: Error | null) => void) {
-        const { id, pin, scenario, host, participants, totalQuestions, winPercentage } = lobbyData;
+        const { id, pin, scenario, host, participants, total_questions, win_percentage } =
+            lobbyData;
 
         const lobbyQuery = `
-            INSERT INTO lobbies (id, pin, scenario, host, totalQuestions, winPercentage)
+            INSERT INTO lobbies (id, pin, scenario, host, total_questions, win_percentage)
             VALUES (?, ?, ?, ?, ?, ?);
         `;
 
-        this.db.run(lobbyQuery, [id, pin, scenario, host, totalQuestions, winPercentage], (err) => {
-            callback(err);
-        });
+        this.db.run(
+            lobbyQuery,
+            [id, pin, scenario, host, total_questions, win_percentage],
+            (err) => {
+                callback(err);
+            }
+        );
 
         participants.forEach((participant) => {
             const participantQuery = `
-            INSERT INTO participants (id, lobbyId , name, score)
+            INSERT INTO participants (id, lobby_id , name, score)
             VALUES (?, ?, ?, ?);
         `;
             this.db.run(
@@ -73,7 +78,7 @@ export class LobbyModel {
         callback: (err: Error | null) => void
     ) {
         const addParticipantQuery = `
-            INSERT INTO participants (id, lobbyId, name, score)
+            INSERT INTO participants (id, lobby_id, name, score)
             VALUES (?, ?, ?, ?);
         `;
 
@@ -102,7 +107,7 @@ export class LobbyModel {
     ) {
         const deleteParticipantQuery = `
             DELETE FROM participants
-            WHERE lobbyId = ? AND id = ?;
+            WHERE lobby_id = ? AND id = ?;
         `;
 
         try {
@@ -163,7 +168,7 @@ export class LobbyModel {
     private async removeAllParticipants(lobbyId: string, callback: (err: Error | null) => void) {
         const deleteAllParticipantsQuery = `
             DELETE FROM participants
-            WHERE lobbyId = ?;
+            WHERE lobby_id = ?;
         `;
 
         try {

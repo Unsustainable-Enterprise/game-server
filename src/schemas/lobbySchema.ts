@@ -6,8 +6,8 @@ export const createLobbySchema = z.object({
         data: z.object({
             name: z.string().min(1),
             scenario: z.string().min(1),
-            totalQuestions: z.number(),
-            winPercentage: z.number(),
+            total_questions: z.number(),
+            win_percentage: z.number(),
         }),
     }),
 });

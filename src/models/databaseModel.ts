@@ -29,8 +29,8 @@ export namespace DatabaseModel {
                         pin TEXT,
                         scenario TEXT,
                         host TEXT,
-                        totalQuestions INTEGER,
-                        winPercentage DECIMAL
+                        total_questions INTEGER,
+                        win_percentage DECIMAL
                     );
                 `,
             },
@@ -39,7 +39,7 @@ export namespace DatabaseModel {
                 query: `
                     CREATE TABLE IF NOT EXISTS participants (
                         id TEXT PRIMARY KEY,
-                        lobbyId TEXT NOT NULL,
+                        lobby_id TEXT NOT NULL,
                         name TEXT NOT NULL,
                         score INTEGER
                 );
