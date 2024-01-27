@@ -32,6 +32,10 @@ export namespace WebSocketHandler {
                     LobbyHandler.onDisconnect(ws);
                     break;
                 }
+                case WebSocketMessageEvent.START_GAME: {
+                    LobbyHandler.startGame(ws);
+                    break;
+                }
                 default: {
                     break;
                 }

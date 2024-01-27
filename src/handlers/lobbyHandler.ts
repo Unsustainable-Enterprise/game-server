@@ -14,6 +14,7 @@ export namespace LobbyHandler {
         const validation = createLobbySchema.safeParse(obj);
 
         if (!validation?.success) {
+            console.log(JSON.stringify(validation.error));
             console.log('createLobby validation failed');
             return;
         }
@@ -101,6 +102,30 @@ export namespace LobbyHandler {
                 {
                     participants: participantsNames,
                 }
+            );
+        }
+    }
+
+    export function startGame(ws: ExtWebSocket) {
+        const lobby = LobbyManager.findLobbyByParticipantId(ws.id);
+
+        if (!lobby) {
+            console.log('lobby not found');
+            return;
+        }
+
+        if (lobby.getLobbyData().host !== ws.id) {
+            console.log('you are not host');
+            return;
+        }
+
+        for (const participant of lobby.getLobbyData().participants) {
+            if (participant.id === ws.id) continue;
+            sendMessage(
+                WebSocketManager.getWebSocketSession(participant.id),
+                WebSocketMessageEvent.START_GAME,
+                lobby.getLobbyData().id,
+                {}
             );
         }
     }
