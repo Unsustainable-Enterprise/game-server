@@ -36,6 +36,10 @@ export namespace WebSocketHandler {
                     LobbyHandler.startGame(ws);
                     break;
                 }
+                case WebSocketMessageEvent.ANSWER_QUESTION: {
+                    LobbyHandler.answerQuestion(ws, jsonMessage);
+                    break;
+                }
                 default: {
                     break;
                 }

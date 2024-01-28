@@ -39,6 +39,10 @@ export class LobbyModel {
         };
     }
 
+    public getParticipantScore(participantId: string) {
+        return this.participants.find((participant) => participant.id === participantId)!.score;
+    }
+
     public insertLobbyData(lobbyData: Lobby, callback: (err: Error | null) => void) {
         const { id, pin, scenario, host, participants, total_questions, win_percentage } =
             lobbyData;
@@ -149,8 +153,14 @@ export class LobbyModel {
                             if (err) {
                                 reject(err);
                             } else {
-                                LobbyManager.removeLobby(id);
-                                resolve();
+                                this.removeAllAnswers(id, (removeAnswersErr) => {
+                                    if (removeAnswersErr) {
+                                        reject(removeAnswersErr);
+                                    } else {
+                                        LobbyManager.removeLobby(id);
+                                        resolve();
+                                    }
+                                });
                             }
                         });
                     }
@@ -158,6 +168,87 @@ export class LobbyModel {
             });
 
             this.db.close();
+
+            callback(null);
+        } catch (err: any) {
+            callback(err);
+        }
+    }
+
+    public async updateParticipantScore(
+        lobby_id: string,
+        participant_id: string,
+        score: number,
+        callback: (err: Error | null) => void
+    ) {
+        const updateParticipantScoreQuery = `UPDATE participants SET score = ? WHERE lobby_id = ? AND id = ?;`;
+
+        try {
+            await new Promise<void>((resolve, reject) => {
+                this.db.run(
+                    updateParticipantScoreQuery,
+                    [score, lobby_id, participant_id],
+                    (err) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            this.participants.find(
+                                (player) => player.id === participant_id
+                            )!.score = score;
+                            resolve();
+                        }
+                    }
+                );
+            });
+
+            callback(null);
+        } catch (err: any) {
+            callback(err);
+        }
+    }
+
+    public async addAnswer(
+        lobby_id: string,
+        participant_id: string,
+        question: number,
+        answer: number,
+        callback: (err: Error | null) => void
+    ) {
+        const addAnswerQuery = `
+            INSERT INTO answers (participant_id, lobby_id, question, answer)
+            VALUES (?, ?, ?, ?);
+        `;
+
+        try {
+            await new Promise<void>((resolve, reject) => {
+                this.db.run(addAnswerQuery, [participant_id, lobby_id, question, answer], (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                });
+            });
+
+            callback(null);
+        } catch (err: any) {
+            callback(err);
+        }
+    }
+
+    private async removeAllAnswers(lobbyId: string, callback: (err: Error | null) => void) {
+        const deleteAllAnswersQuery = `DELETE FROM answers WHERE lobby_id = ?;`;
+
+        try {
+            await new Promise<void>((resolve, reject) => {
+                this.db.run(deleteAllAnswersQuery, [lobbyId], (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                });
+            });
 
             callback(null);
         } catch (err: any) {

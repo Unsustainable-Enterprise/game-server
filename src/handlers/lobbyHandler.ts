@@ -168,6 +168,61 @@ export namespace LobbyHandler {
         }
     }
 
+    export async function answerQuestion(ws: ExtWebSocket, obj: Message) {
+        if (!obj?.token) {
+            console.log('no token provided');
+            return;
+        }
+
+        const lobby = LobbyManager.findlobbyByToken(obj.token);
+
+        if (!lobby) {
+            console.log('session not found');
+            return;
+        }
+
+        const data = obj.message.data;
+
+        if (data?.is_correct) {
+            const newScore = lobby.getParticipantScore(ws.id) + 1;
+            await lobby.updateParticipantScore(
+                lobby.getLobbyData().id,
+                ws.id,
+                newScore,
+                (err: any) => {
+                    if (err) {
+                        console.error('Error inserting data:', err.message);
+                    } else {
+                        console.log('Data inserted successfully.');
+                    }
+                }
+            );
+        }
+
+        await lobby.addAnswer(
+            lobby.getLobbyData().id,
+            ws.id,
+            Number(data.question),
+            Number(data.answer),
+            (err: any) => {
+                if (err) {
+                    console.error('Error inserting data:', err.message);
+                } else {
+                    console.log('Data inserted successfully.');
+                }
+            }
+        );
+
+        sendMessage(
+            WebSocketManager.getWebSocketSession(lobby.getLobbyData().host),
+            WebSocketMessageEvent.ANSWER_QUESTION,
+            lobby.getLobbyData().id,
+            {
+                participant_answered: true,
+            }
+        );
+    }
+
     export async function onDisconnect(ws: ExtWebSocket) {
         const lobby = LobbyManager.findLobbyByParticipantId(ws.id);
 

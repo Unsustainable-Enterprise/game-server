@@ -7,7 +7,11 @@ const db = new sqlite3.Database(dbName);
 export namespace DatabaseModel {
     export function init() {
         if (fs.existsSync(dbName)) {
-            const deleteQueries = ['DELETE FROM lobbies;', 'DELETE FROM participants;'];
+            const deleteQueries = [
+                'DELETE FROM lobbies;',
+                'DELETE FROM participants;',
+                'DELETE FROM answers;',
+            ];
 
             deleteQueries.forEach((deleteQuery) => {
                 db.run(deleteQuery, (err) => {
@@ -42,6 +46,18 @@ export namespace DatabaseModel {
                         lobby_id TEXT NOT NULL,
                         name TEXT NOT NULL,
                         score INTEGER
+                );
+                `,
+            },
+            {
+                name: 'answers',
+                query: `
+                    CREATE TABLE IF NOT EXISTS answers (
+                        id TEXT PRIMARY KEY,
+                        participant_id TEXT NOT NULL,
+                        lobby_id TEXT NOT NULL,
+                        question INT NOT NULL,
+                        answer INT NOT NULL
                 );
                 `,
             },
