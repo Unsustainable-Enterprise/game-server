@@ -40,6 +40,10 @@ export namespace WebSocketHandler {
                     LobbyHandler.answerQuestion(ws, jsonMessage);
                     break;
                 }
+                case WebSocketMessageEvent.DISPLAY_QUESTION_RESULTS: {
+                    LobbyHandler.displayQuestionResults(ws, jsonMessage);
+                    break;
+                }
                 default: {
                     break;
                 }

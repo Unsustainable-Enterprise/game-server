@@ -12,4 +12,5 @@ export enum WebSocketMessageEvent {
     LEAVE_LOBBY = 'leave_lobby',
     START_GAME = 'start_game',
     ANSWER_QUESTION = 'answer_question',
+    DISPLAY_QUESTION_RESULTS = 'display_question_results',
 }

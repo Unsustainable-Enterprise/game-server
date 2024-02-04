@@ -11,7 +11,7 @@ export type Lobby = {
 export type Message = {
     event: string;
     token?: string;
-    message: { data: { [key: string]: string | number | boolean }; type?: string };
+    message: { data: { [key: string]: string | number | boolean | number }; type?: string };
 };
 
 export type Participants = {

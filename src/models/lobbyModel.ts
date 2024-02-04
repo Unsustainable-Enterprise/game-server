@@ -256,6 +256,20 @@ export class LobbyModel {
         }
     }
 
+    public async getQuestionAnswers(lobbyId: string, question: number): Promise<any[]> {
+        const getAnswersQuery = `SELECT answer FROM answers WHERE lobby_id = ? AND question = ?;`;
+
+        return new Promise<any[]>((resolve, reject) => {
+            this.db.all(getAnswersQuery, [lobbyId, question], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+    }
+
     private async removeAllParticipants(lobbyId: string, callback: (err: Error | null) => void) {
         const deleteAllParticipantsQuery = `
             DELETE FROM participants

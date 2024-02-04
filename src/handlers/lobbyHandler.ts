@@ -161,10 +161,42 @@ export namespace LobbyHandler {
                     WebSocketMessageEvent.MESSAGE_LOBBY,
                     lobby.getLobbyData().id,
                     {
-                        data,
+                        ...data,
                     }
                 );
             }
+        }
+    }
+
+    export async function displayQuestionResults(ws: ExtWebSocket, obj: Message) {
+        const lobby = LobbyManager.findLobbyByParticipantId(ws.id);
+
+        if (!lobby) {
+            console.log('session not found');
+            return;
+        }
+
+        if (lobby.getLobbyData().host !== ws.id) {
+            console.log('you are not host');
+            return;
+        }
+
+        const questionAnswers = await lobby.getQuestionAnswers(
+            lobby.getLobbyData().id,
+            Number(obj.message.data.question)
+        );
+
+        const answers: number[] = questionAnswers.map((item) => item.answer);
+
+        for (const participant of lobby.getLobbyData().participants) {
+            sendMessage(
+                WebSocketManager.getWebSocketSession(participant.id),
+                WebSocketMessageEvent.DISPLAY_QUESTION_RESULTS,
+                lobby.getLobbyData().id,
+                {
+                    answers,
+                }
+            );
         }
     }
 
