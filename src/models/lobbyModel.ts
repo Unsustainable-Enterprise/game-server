@@ -2,294 +2,125 @@ import { v4 as uuidv4 } from 'uuid';
 import { Message, Participants, Lobby } from '../types/lobbyTypes';
 import { generatePin } from '../utils/generatePin';
 import sqlite3 from 'sqlite3';
-import { ExtWebSocket } from '../types/webSocketTypes';
-import { LobbyManager } from '../managers/lobbyManager';
 import { dbName } from '../configs/dbConfig';
+import { ParticipantModel } from './participantModel';
+import { AnswerModel } from './answerModel';
 
-export class LobbyModel {
-    private id: string;
-    private pin: string;
-    private scenario: string;
-    private host: string;
-    private participants: Participants[];
-    private total_questions: number;
-    private win_percentage: number;
+export namespace LobbyModel {
+    const db = new sqlite3.Database(dbName);
 
-    constructor(ws: ExtWebSocket, obj: Message) {
-        this.id = uuidv4();
-        this.pin = generatePin();
-        this.scenario = obj.message.data.scenario.toString();
-        this.host = ws.id;
-        this.participants = [{ id: ws.id, name: obj.message.data.name.toString(), score: 0 }];
-        this.total_questions = Number(obj.message.data.total_questions);
-        this.win_percentage = Number(obj.message.data.win_percentage) || 51;
+    export async function getLobby(lobbyId: string): Promise<Lobby> {
+        const query = `SELECT * FROM lobbies WHERE id = ?;`;
+
+        return new Promise<Lobby>((resolve, reject) => {
+            db.get(query, [lobbyId], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row as Lobby);
+                }
+            });
+        });
     }
 
-    db = new sqlite3.Database(dbName);
+    export async function createLobby(lobbyData: Lobby): Promise<void> {
+        const { id, pin, scenario, host, total_questions, win_percentage } = lobbyData;
 
-    public getLobbyData(): Lobby {
-        return {
-            id: this.id,
-            pin: this.pin,
-            scenario: this.scenario,
-            host: this.host,
-            participants: this.participants,
-            total_questions: this.total_questions,
-            win_percentage: this.win_percentage,
-        };
-    }
-
-    public getParticipantScore(participantId: string) {
-        return this.participants.find((participant) => participant.id === participantId)!.score;
-    }
-
-    public insertLobbyData(lobbyData: Lobby, callback: (err: Error | null) => void) {
-        const { id, pin, scenario, host, participants, total_questions, win_percentage } =
-            lobbyData;
-
-        const lobbyQuery = `
+        const query = `
             INSERT INTO lobbies (id, pin, scenario, host, total_questions, win_percentage)
             VALUES (?, ?, ?, ?, ?, ?);
         `;
 
-        this.db.run(
-            lobbyQuery,
-            [id, pin, scenario, host, total_questions, win_percentage],
-            (err) => {
-                callback(err);
-            }
-        );
+        try {
+            await new Promise<void>((resolve, reject) => {
+                db.run(query, [id, pin, scenario, host, total_questions, win_percentage], (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                });
+            });
+        } catch (error: any) {
+            throw error;
+        }
+    }
 
-        participants.forEach((participant) => {
-            const participantQuery = `
-            INSERT INTO participants (id, lobby_id , name, score)
-            VALUES (?, ?, ?, ?);
-        `;
-            this.db.run(
-                participantQuery,
-                [participant.id, id, participant.name, participant.score],
-                (err) => {
-                    callback(err);
+    export async function removeLobby(lobbyId: string) {
+        const query = `DELETE FROM lobbies WHERE id = ?;`;
+
+        try {
+            await new Promise<void>((resolve, reject) => {
+                db.run(query, [lobbyId], async (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        await ParticipantModel.removeAllParticipants(lobbyId);
+                        await AnswerModel.removeAllAnswers(lobbyId);
+                        resolve();
+                    }
+                });
+            });
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+    export async function isHostInLobby(host: string): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            const query = 'SELECT COUNT(*) as count FROM lobbies WHERE host = ?';
+
+            db.get(query, [host], (error, row: { count?: number }) => {
+                if (error) {
+                    console.error('Error:', error);
+                    reject(error);
+                } else {
+                    const lobbyCount = row?.count || 0;
+                    resolve(lobbyCount > 0);
                 }
-            );
+            });
         });
     }
 
-    public async addParticipant(
-        lobbyId: string,
-        ws: ExtWebSocket,
-        name: string,
-        callback: (err: Error | null) => void
-    ) {
-        const addParticipantQuery = `
-            INSERT INTO participants (id, lobby_id, name, score)
-            VALUES (?, ?, ?, ?);
-        `;
+    export async function getLobbyByPin(pin: string): Promise<Lobby> {
+        const query = 'SELECT * FROM lobbies WHERE pin = ?';
 
-        try {
-            await new Promise<void>((resolve, reject) => {
-                this.db.run(addParticipantQuery, [ws.id, lobbyId, name, 0], (err) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        this.participants.push({ id: ws.id, name, score: 0 });
-                        resolve();
-                    }
-                });
-            });
-
-            callback(null);
-        } catch (err: any) {
-            callback(err);
-        }
-    }
-
-    public async removeParticipant(
-        lobbyId: string,
-        participantId: string,
-        callback: (err: Error | null) => void
-    ) {
-        const deleteParticipantQuery = `
-            DELETE FROM participants
-            WHERE lobby_id = ? AND id = ?;
-        `;
-
-        try {
-            await new Promise<void>((resolve, reject) => {
-                this.db.run(deleteParticipantQuery, [lobbyId, participantId], (err) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        const index = this.participants.findIndex(
-                            (participant) => participant.id === participantId
-                        );
-                        if (index !== -1) {
-                            this.participants.splice(index, 1);
-                        }
-                        resolve();
-                    }
-                });
-            });
-
-            callback(null);
-        } catch (err: any) {
-            callback(err);
-        }
-    }
-
-    public async removeLobby(id: string, callback: (err: Error | null) => void) {
-        const deleteParticipantQuery = `
-            DELETE FROM lobbies
-            WHERE id = ?;
-        `;
-
-        try {
-            await new Promise<void>((resolve, reject) => {
-                this.removeAllParticipants(id, (removeParticipantsErr) => {
-                    if (removeParticipantsErr) {
-                        reject(removeParticipantsErr);
-                    } else {
-                        this.db.run(deleteParticipantQuery, [id], (err) => {
-                            if (err) {
-                                reject(err);
-                            } else {
-                                this.removeAllAnswers(id, (removeAnswersErr) => {
-                                    if (removeAnswersErr) {
-                                        reject(removeAnswersErr);
-                                    } else {
-                                        LobbyManager.removeLobby(id);
-                                        resolve();
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
-            });
-
-            this.db.close();
-
-            callback(null);
-        } catch (err: any) {
-            callback(err);
-        }
-    }
-
-    public async updateParticipantScore(
-        lobby_id: string,
-        participant_id: string,
-        score: number,
-        callback: (err: Error | null) => void
-    ) {
-        const updateParticipantScoreQuery = `UPDATE participants SET score = ? WHERE lobby_id = ? AND id = ?;`;
-
-        try {
-            await new Promise<void>((resolve, reject) => {
-                this.db.run(
-                    updateParticipantScoreQuery,
-                    [score, lobby_id, participant_id],
-                    (err) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            this.participants.find(
-                                (player) => player.id === participant_id
-                            )!.score = score;
-                            resolve();
-                        }
-                    }
-                );
-            });
-
-            callback(null);
-        } catch (err: any) {
-            callback(err);
-        }
-    }
-
-    public async addAnswer(
-        lobby_id: string,
-        participant_id: string,
-        question: number,
-        answer: number,
-        callback: (err: Error | null) => void
-    ) {
-        const addAnswerQuery = `
-            INSERT INTO answers (participant_id, lobby_id, question, answer)
-            VALUES (?, ?, ?, ?);
-        `;
-
-        try {
-            await new Promise<void>((resolve, reject) => {
-                this.db.run(addAnswerQuery, [participant_id, lobby_id, question, answer], (err) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve();
-                    }
-                });
-            });
-
-            callback(null);
-        } catch (err: any) {
-            callback(err);
-        }
-    }
-
-    private async removeAllAnswers(lobbyId: string, callback: (err: Error | null) => void) {
-        const deleteAllAnswersQuery = `DELETE FROM answers WHERE lobby_id = ?;`;
-
-        try {
-            await new Promise<void>((resolve, reject) => {
-                this.db.run(deleteAllAnswersQuery, [lobbyId], (err) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve();
-                    }
-                });
-            });
-
-            callback(null);
-        } catch (err: any) {
-            callback(err);
-        }
-    }
-
-    public async getQuestionAnswers(lobbyId: string, question: number): Promise<any[]> {
-        const getAnswersQuery = `SELECT answer FROM answers WHERE lobby_id = ? AND question = ?;`;
-
-        return new Promise<any[]>((resolve, reject) => {
-            this.db.all(getAnswersQuery, [lobbyId, question], (err, rows) => {
+        return new Promise<Lobby>((resolve, reject) => {
+            db.get(query, [pin], (err, row) => {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(rows);
+                    resolve(row as Lobby);
                 }
             });
         });
     }
 
-    private async removeAllParticipants(lobbyId: string, callback: (err: Error | null) => void) {
-        const deleteAllParticipantsQuery = `
-            DELETE FROM participants
-            WHERE lobby_id = ?;
-        `;
+    export async function getLobbyById(token: string): Promise<Lobby> {
+        const query = 'SELECT * FROM lobbies WHERE id = ?';
 
-        try {
-            await new Promise<void>((resolve, reject) => {
-                this.db.run(deleteAllParticipantsQuery, [lobbyId], (err) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve();
-                    }
-                });
+        return new Promise<Lobby>((resolve, reject) => {
+            db.get(query, [token], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row as Lobby);
+                }
             });
+        });
+    }
 
-            callback(null);
-        } catch (err: any) {
-            callback(err);
-        }
+    export async function getLobbyByHost(host: string): Promise<Lobby> {
+        const query = 'SELECT * FROM lobbies WHERE host = ?';
+
+        return new Promise<Lobby>((resolve, reject) => {
+            db.get(query, [host], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row as Lobby);
+                }
+            });
+        });
     }
 }

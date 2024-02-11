@@ -1,6 +1,8 @@
+import { json } from 'express';
 import { WebSocketEvent, WebSocketMessageEvent } from '../configs/webSocketConfig';
 import { ExtWebSocket } from '../types/webSocketTypes';
 import { stringToJSON } from '../utils/stringToJson';
+import { GameHandler } from './gameHandler';
 import { LobbyHandler } from './lobbyHandler';
 
 export namespace WebSocketHandler {
@@ -20,10 +22,6 @@ export namespace WebSocketHandler {
                     LobbyHandler.createLobby(ws, jsonMessage);
                     break;
                 }
-                case WebSocketMessageEvent.MESSAGE_LOBBY: {
-                    LobbyHandler.messageLobby(ws, jsonMessage);
-                    break;
-                }
                 case WebSocketMessageEvent.JOIN_LOBBY: {
                     LobbyHandler.joinLobby(ws, jsonMessage);
                     break;
@@ -33,7 +31,7 @@ export namespace WebSocketHandler {
                     break;
                 }
                 case WebSocketMessageEvent.START_GAME: {
-                    LobbyHandler.startGame(ws);
+                    GameHandler.startGame(ws, jsonMessage);
                     break;
                 }
                 case WebSocketMessageEvent.ANSWER_QUESTION: {

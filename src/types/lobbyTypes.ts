@@ -3,7 +3,6 @@ export type Lobby = {
     pin: string;
     scenario: string;
     host: string;
-    participants: Participants[];
     total_questions: number;
     win_percentage: number;
 };
