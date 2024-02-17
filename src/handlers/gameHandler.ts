@@ -18,14 +18,7 @@ export namespace GameHandler {
                 return;
             }
 
-            const partyPool = PartyPoolManager.findPartyById(String(obj.token));
-
-            if (!partyPool) {
-                console.log('party not found');
-                return;
-            }
-
-            const party = await partyPool.partyModel.getPartyById(String(obj.token));
+            const party = await PartyPoolManager.getPartyById(String(obj.token));
 
             if (!party) {
                 console.log('party not found');
@@ -37,7 +30,7 @@ export namespace GameHandler {
                 return;
             }
 
-            const participants = await partyPool.participantModel.getParticipants(party.id);
+            const participants = await party.participantModel.getParticipants(party.id);
 
             for (const participant of participants) {
                 if (participant.id === ws.id) continue;

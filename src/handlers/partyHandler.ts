@@ -27,7 +27,7 @@ export namespace PartyHandler {
                 return;
             }
 
-            const party: Party = {
+            const partyData: Party = {
                 id: uuidv4(),
                 pin: await generatePin(),
                 scenario: obj.message.data.scenario.toString(),
@@ -36,13 +36,13 @@ export namespace PartyHandler {
                 win_percentage: 0.5,
             };
 
-            const partyPool = PartyPoolManager.addParty(party.id);
-            await partyPool.partyModel.createParty(party);
+            const party = PartyPoolManager.addParty(partyData.id, partyData.pin);
+            await party.partyModel.createParty(partyData);
 
-            sendMessage(ws, WebSocketMessageEvent.CREATE_PARTY, party.id, {
-                pin: party.pin,
+            sendMessage(ws, WebSocketMessageEvent.CREATE_PARTY, partyData.id, {
+                pin: partyData.pin,
                 user_name: obj.message.data.name.toString(),
-                scenario: party.scenario,
+                scenario: partyData.scenario,
             });
         } catch (error) {
             console.log(error);
@@ -65,27 +65,20 @@ export namespace PartyHandler {
                 return;
             }
 
-            const partyPool = PartyPoolManager.findPartyById(obj.message.data.pin.toString());
-
-            if (!partyPool) {
-                console.log('party not found');
-                return;
-            }
-
-            const party = await partyPool.partyModel.getPartyByPin(obj.message.data.pin.toString());
+            const party = await PartyPoolManager.getPartyByPin(obj.message.data.pin.toString());
 
             if (!party) {
-                console.log('party not found');
+                console.log('party1 not found');
                 return;
             }
 
-            await partyPool.participantModel.addParticipant(
+            await party.participantModel.addParticipant(
                 party.id,
                 ws.id,
                 obj.message.data.name.toString()
             );
 
-            const participants = await partyPool.participantModel.getParticipants(party.id);
+            const participants = await party.participantModel.getParticipants(party.id);
 
             const participantsNames = participants.map((participant) => participant.name);
 

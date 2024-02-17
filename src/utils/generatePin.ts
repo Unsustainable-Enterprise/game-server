@@ -6,9 +6,11 @@ import { dbName } from '../configs/dbConfig';
 export async function generatePin(): Promise<string> {
     try {
         const pin = (Math.floor(Math.random() * 90000) + 10000).toString();
+
         if (await checkForDuplicate(pin)) {
             return generatePin();
         }
+
         return pin;
     } catch (error) {
         throw new Error('Error generating pin');

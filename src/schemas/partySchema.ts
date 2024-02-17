@@ -14,7 +14,7 @@ export const createPartySchema = z.object({
 });
 
 export const joinPartySchema = z.object({
-    event: z.literal(WebSocketMessageEvent.LEAVE_PARTY),
+    event: z.literal(WebSocketMessageEvent.JOIN_PARTY),
     message: z.object({
         data: z.object({
             name: z.string().min(1),

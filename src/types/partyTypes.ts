@@ -11,8 +11,11 @@ export type Party = {
     win_percentage: number;
 };
 
+export type GetParty = Party & Omit<PartyPool, 'id' | 'pin'>;
+
 export type PartyPool = {
     id: string;
+    pin: string;
     partyModel: PartyModel;
     participantModel: ParticipantModel;
     answerModel: AnswerModel;

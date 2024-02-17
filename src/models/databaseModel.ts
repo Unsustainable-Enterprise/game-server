@@ -5,30 +5,24 @@ import fs from 'fs';
 const db = new sqlite3.Database(dbName);
 
 export namespace DatabaseModel {
-    export function init() {
+    export async function init() {
         if (fs.existsSync(dbName)) {
             const deleteQueries = [
-                'DELETE FROM parties;',
-                'DELETE FROM participants;',
-                'DELETE FROM answers;',
+                'DROP TABLE IF EXISTS answers;',
+                'DROP TABLE IF EXISTS participants;',
+                'DROP TABLE IF EXISTS parties;',
             ];
 
-            deleteQueries.forEach((deleteQuery) => {
-                db.run(deleteQuery, (err) => {
-                    if (err) {
-                        console.error(`Error deleting data: ${err.message}`);
-                    } else {
-                        console.log(`Data deleted.`);
-                    }
-                });
-            });
+            for (const deleteQuery of deleteQueries) {
+                await runQuery(deleteQuery, 'Error deleting data');
+            }
         }
 
         const tableDefinitions: { name: string; query: string }[] = [
             {
                 name: 'parties',
                 query: `
-                    CREATE TABLE IF NOT EXISTS parties (
+                    CREATE TABLE parties (
                         id TEXT PRIMARY KEY,
                         pin TEXT,
                         scenario TEXT,
@@ -41,7 +35,7 @@ export namespace DatabaseModel {
             {
                 name: 'participants',
                 query: `
-                    CREATE TABLE IF NOT EXISTS participants (
+                    CREATE TABLE participants (
                         id TEXT PRIMARY KEY,
                         party_id TEXT NOT NULL,
                         name TEXT NOT NULL,
@@ -52,8 +46,8 @@ export namespace DatabaseModel {
             {
                 name: 'answers',
                 query: `
-                    CREATE TABLE IF NOT EXISTS answers (
-                        id TEXT PRIMARY KEY,
+                    CREATE TABLE answers (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
                         participant_id TEXT NOT NULL,
                         party_id TEXT NOT NULL,
                         question INT NOT NULL,
@@ -63,16 +57,24 @@ export namespace DatabaseModel {
             },
         ];
 
-        tableDefinitions.forEach(({ name, query }) => {
+        for (const { name, query } of tableDefinitions) {
+            await runQuery(query, `Error creating table '${name}'`);
+        }
+
+        db.close();
+    }
+
+    function runQuery(query: string, errorMessage: string): Promise<void> {
+        return new Promise((resolve, reject) => {
             db.run(query, (err) => {
                 if (err) {
-                    console.error(`Error creating table '${name}': ${err.message}`);
+                    console.error(`${errorMessage}: ${err.message}`);
+                    reject(err);
                 } else {
-                    console.log(`Table '${name}' created.`);
+                    console.log(`Query executed: ${query}`);
+                    resolve();
                 }
             });
         });
-
-        db.close();
     }
 }
