@@ -1,4 +1,6 @@
-import { Database } from 'sqlite3';
+import { AnswerModel } from '../models/answerModel';
+import { ParticipantModel } from '../models/participantModel';
+import { PartyModel } from '../models/partyModel';
 
 export type Party = {
     id: string;
@@ -11,7 +13,9 @@ export type Party = {
 
 export type PartyPool = {
     id: string;
-    db: Database;
+    partyModel: PartyModel;
+    participantModel: ParticipantModel;
+    answerModel: AnswerModel;
 };
 
 export type Message = {

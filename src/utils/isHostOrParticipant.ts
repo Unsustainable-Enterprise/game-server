@@ -6,22 +6,23 @@ import { dbName } from '../configs/dbConfig';
 export async function isHostOrParticipant(id: string): Promise<boolean> {
     const db = new sqlite3.Database(dbName);
     try {
-        const isHost = await PartyModel.isHostInParty(db, id);
+        const db = new sqlite3.Database(dbName);
+        const partyModel = new PartyModel(db);
+        const participantModel = new ParticipantModel(db);
+
+        const isHost = await partyModel.isHostInParty(id);
         if (isHost) {
-            console.log('isHost', isHost);
             return true;
         }
 
-        const isParticipant = await ParticipantModel.isParticipant(id);
+        const isParticipant = await participantModel.isParticipant(id);
         if (isParticipant) {
-            console.log('isParticipant', isParticipant);
             return true;
         }
 
         return false;
     } catch (error) {
-        console.log(error);
-        return false;
+        throw new Error('Error checking for host or participant');
     } finally {
         db.close();
     }

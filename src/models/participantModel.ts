@@ -3,14 +3,18 @@ import { dbName } from '../configs/dbConfig';
 import { ExtWebSocket } from '../types/webSocketTypes';
 import { Participants } from '../types/partyTypes';
 
-export namespace ParticipantModel {
-    const db = new sqlite3.Database(dbName);
+export class ParticipantModel {
+    private db: sqlite3.Database;
 
-    export async function getParticipantScore(participantId: string): Promise<number> {
+    constructor(db: sqlite3.Database) {
+        this.db = db;
+    }
+
+    public async getParticipantScore(participantId: string): Promise<number> {
         const query = `SELECT score FROM participants WHERE id = ?;`;
 
         return new Promise<number>((resolve, reject) => {
-            db.all(query, [participantId], (err, rows) => {
+            this.db.all(query, [participantId], (err, rows) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -20,15 +24,15 @@ export namespace ParticipantModel {
         });
     }
 
-    export async function addParticipant(lobbyId: string, id: string, name: string): Promise<void> {
+    public async addParticipant(partyId: string, id: string, name: string): Promise<void> {
         const query = `
-            INSERT INTO participants (id, lobby_id, name, score)
+            INSERT INTO participants (id, party_id, name, score)
             VALUES (?, ?, ?, ?);
         `;
 
         try {
             await new Promise<void>((resolve, reject) => {
-                db.run(query, [id, lobbyId, name, 0], (err) => {
+                this.db.run(query, [id, partyId, name, 0], (err) => {
                     if (err) {
                         reject(err);
                     } else {
@@ -41,15 +45,15 @@ export namespace ParticipantModel {
         }
     }
 
-    export async function removeParticipant(lobbyId: string, participantId: string): Promise<void> {
+    public async removeParticipant(partyId: string, participantId: string): Promise<void> {
         const query = `
             DELETE FROM participants 
-            WHERE lobby_id = ? AND id = ?;
+            WHERE party_id = ? AND id = ?;
         `;
 
         try {
             await new Promise<void>((resolve, reject) => {
-                db.run(query, [lobbyId, participantId], (err) => {
+                this.db.run(query, [partyId, participantId], (err) => {
                     if (err) {
                         reject(err);
                     } else {
@@ -62,10 +66,7 @@ export namespace ParticipantModel {
         }
     }
 
-    export async function updateParticipantScore(
-        participantId: string,
-        score: number
-    ): Promise<void> {
+    public async updateParticipantScore(participantId: string, score: number): Promise<void> {
         const query = `
             UPDATE participants
             SET score = ?
@@ -74,7 +75,7 @@ export namespace ParticipantModel {
 
         try {
             await new Promise<void>((resolve, reject) => {
-                db.run(query, [score, participantId], (err) => {
+                this.db.run(query, [score, participantId], (err) => {
                     if (err) {
                         reject(err);
                     } else {
@@ -87,15 +88,15 @@ export namespace ParticipantModel {
         }
     }
 
-    export async function removeAllParticipants(lobbyId: string): Promise<void> {
+    public async removeAllParticipants(partyId: string): Promise<void> {
         const query = `
             DELETE FROM participants
-            WHERE lobby_id = ?;
+            WHERE party_id = ?;
         `;
 
         try {
             await new Promise<void>((resolve, reject) => {
-                db.run(query, [lobbyId], (err) => {
+                this.db.run(query, [partyId], (err) => {
                     if (err) {
                         reject(err);
                     } else {
@@ -108,11 +109,11 @@ export namespace ParticipantModel {
         }
     }
 
-    export async function isParticipant(participantId: string): Promise<boolean> {
+    public async isParticipant(participantId: string): Promise<boolean> {
         const query = `SELECT COUNT(*) as count FROM participants WHERE id = ?;`;
 
         return new Promise<boolean>((resolve, reject) => {
-            db.get(query, [participantId], (error, data: { count?: number }) => {
+            this.db.get(query, [participantId], (error, data: { count?: number }) => {
                 if (error) {
                     console.error('Error:', error);
                     reject(error);
@@ -124,11 +125,11 @@ export namespace ParticipantModel {
         });
     }
 
-    export async function getParticipants(lobbyId: string): Promise<Participants[]> {
-        const query = `SELECT id, name, score FROM participants WHERE lobby_id = ?;`;
+    public async getParticipants(partyId: string): Promise<Participants[]> {
+        const query = `SELECT id, name, score FROM participants WHERE party_id = ?;`;
 
         return new Promise<Participants[]>((resolve, reject) => {
-            db.all(query, [lobbyId], (err, rows) => {
+            this.db.all(query, [partyId], (err, rows) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -138,11 +139,11 @@ export namespace ParticipantModel {
         });
     }
 
-    export async function getParticipantLobbyId(participantId: string): Promise<string> {
-        const query = `SELECT lobby_id FROM participants WHERE id = ?;`;
+    public async getParticipantPartyId(participantId: string): Promise<string> {
+        const query = `SELECT party_id FROM participants WHERE id = ?;`;
 
         return new Promise<string>((resolve, reject) => {
-            db.get(query, [participantId], (err, row) => {
+            this.db.get(query, [participantId], (err, row) => {
                 if (err) {
                     reject(err);
                 } else {

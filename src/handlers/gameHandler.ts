@@ -25,7 +25,7 @@ export namespace GameHandler {
                 return;
             }
 
-            const party = await PartyModel.getPartyById(partyPool.db, String(obj.token));
+            const party = await partyPool.partyModel.getPartyById(String(obj.token));
 
             if (!party) {
                 console.log('party not found');
@@ -37,7 +37,7 @@ export namespace GameHandler {
                 return;
             }
 
-            const participants = await ParticipantModel.getParticipants(party.id);
+            const participants = await partyPool.participantModel.getParticipants(party.id);
 
             for (const participant of participants) {
                 if (participant.id === ws.id) continue;

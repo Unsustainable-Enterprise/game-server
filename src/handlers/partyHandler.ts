@@ -37,8 +37,7 @@ export namespace PartyHandler {
             };
 
             const partyPool = PartyPoolManager.addParty(party.id);
-
-            await PartyModel.createParty(partyPool.db, party);
+            await partyPool.partyModel.createParty(party);
 
             sendMessage(ws, WebSocketMessageEvent.CREATE_PARTY, party.id, {
                 pin: party.pin,
@@ -69,26 +68,24 @@ export namespace PartyHandler {
             const partyPool = PartyPoolManager.findPartyById(obj.message.data.pin.toString());
 
             if (!partyPool) {
-                console.log('lobby not found');
+                console.log('party not found');
                 return;
             }
 
-            const party = await PartyModel.getPartyByPin(
-                partyPool?.db,
-                obj.message.data.pin.toString()
-            );
+            const party = await partyPool.partyModel.getPartyByPin(obj.message.data.pin.toString());
 
             if (!party) {
-                console.log('lobby not found');
+                console.log('party not found');
                 return;
             }
 
-            await ParticipantModel.addParticipant(
+            await partyPool.participantModel.addParticipant(
                 party.id,
                 ws.id,
                 obj.message.data.name.toString()
             );
-            const participants = await ParticipantModel.getParticipants(party.id);
+
+            const participants = await partyPool.participantModel.getParticipants(party.id);
 
             const participantsNames = participants.map((participant) => participant.name);
 
