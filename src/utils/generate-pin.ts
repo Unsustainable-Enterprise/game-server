@@ -1,7 +1,7 @@
-import { PartyHandler } from '../handlers/partyHandler';
+import { PartyHandler } from '../handlers/party-handler';
 import sqlite3 from 'sqlite3';
-import { PartyModel } from '../models/partyModel';
-import { DatabaseModel } from '../models/databaseModel';
+import { PartyModel } from '../models/party-model';
+import { DatabaseModel } from '../models/database-model';
 
 export async function generatePin(): Promise<string> {
     try {

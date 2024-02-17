@@ -1,6 +1,6 @@
-import { AnswerModel } from '../models/answerModel';
-import { ParticipantModel } from '../models/participantModel';
-import { PartyModel } from '../models/partyModel';
+import { AnswerModel } from '../models/answer-model';
+import { ParticipantModel } from '../models/participant-model';
+import { PartyModel } from '../models/party-model';
 
 export type PartyDb = {
     id: string;

@@ -1,9 +1,9 @@
-import { PartyPool, Party } from '../types/partyTypes';
+import { PartyPool, Party } from '../types/party-types';
 import sqlite3 from 'sqlite3';
-import { PartyModel } from '../models/partyModel';
-import { AnswerModel } from '../models/answerModel';
-import { ParticipantModel } from '../models/participantModel';
-import { DatabaseModel } from '../models/databaseModel';
+import { PartyModel } from '../models/party-model';
+import { AnswerModel } from '../models/answer-model';
+import { ParticipantModel } from '../models/participant-model';
+import { DatabaseModel } from '../models/database-model';
 
 export namespace PartyPoolManager {
     const pool: PartyPool[] = [];

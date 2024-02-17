@@ -1,12 +1,12 @@
-import { PartyModel } from '../models/partyModel';
-import { ExtWebSocket } from '../types/webSocketTypes';
-import { Message } from '../types/partyTypes';
-import { startGameSchema } from '../schemas/gameSchema';
-import { sendMessage } from '../utils/sendMessage';
-import { WebSocketManager } from '../managers/webSocketManager';
-import { WebSocketMessageEvent } from '../types/webSocketTypes';
-import { ParticipantModel } from '../models/participantModel';
-import { PartyPoolManager } from '../managers/PartyPoolManager';
+import { PartyModel } from '../models/party-model';
+import { ExtWebSocket } from '../types/websocket-types';
+import { Message } from '../types/party-types';
+import { startGameSchema } from '../schemas/game-schema';
+import { sendMessage } from '../utils/send-message';
+import { WebSocketManager } from '../managers/websocket-manager';
+import { WebSocketMessageEvent } from '../types/websocket-types';
+import { ParticipantModel } from '../models/participant-model';
+import { PartyPoolManager } from '../managers/party-pool-manager';
 
 export namespace GameHandler {
     export async function startGame(ws: ExtWebSocket, obj: Message): Promise<void> {

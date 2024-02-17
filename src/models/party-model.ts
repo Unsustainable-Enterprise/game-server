@@ -1,7 +1,7 @@
-import { IsHost, PartyDb } from '../types/partyTypes';
+import { IsHost, PartyDb } from '../types/party-types';
 import sqlite3 from 'sqlite3';
-import { ParticipantModel } from './participantModel';
-import { AnswerModel } from './answerModel';
+import { ParticipantModel } from './participant-model';
+import { AnswerModel } from './answer-model';
 
 export class PartyModel {
     private db: sqlite3.Database;

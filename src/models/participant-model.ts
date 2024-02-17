@@ -1,6 +1,6 @@
 import sqlite3 from 'sqlite3';
-import { ExtWebSocket } from '../types/webSocketTypes';
-import { Participants } from '../types/partyTypes';
+import { ExtWebSocket } from '../types/websocket-types';
+import { Participants } from '../types/party-types';
 
 export class ParticipantModel {
     private db: sqlite3.Database;

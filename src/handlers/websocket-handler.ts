@@ -1,9 +1,9 @@
 import { json } from 'express';
-import { WebSocketEvent, WebSocketMessageEvent } from '../types/webSocketTypes';
-import { ExtWebSocket } from '../types/webSocketTypes';
-import { stringToJSON } from '../utils/stringToJson';
-import { GameHandler } from './gameHandler';
-import { PartyHandler } from './partyHandler';
+import { WebSocketEvent, WebSocketMessageEvent } from '../types/websocket-types';
+import { ExtWebSocket } from '../types/websocket-types';
+import { stringToJSON } from '../utils/string-to-json';
+import { GameHandler } from './game-handler';
+import { PartyHandler } from './party-handler';
 
 export namespace WebSocketHandler {
     export function handleWebsocket(ws: ExtWebSocket, req: any) {

@@ -1,13 +1,13 @@
-import { PartyDb, Message, Participants, Party } from '../types/partyTypes';
-import { createPartySchema, joinPartySchema } from '../schemas/partySchema';
-import { sendMessage } from '../utils/sendMessage';
-import { ExtWebSocket } from '../types/webSocketTypes';
-import { WebSocketManager } from '../managers/webSocketManager';
-import { WebSocketMessageEvent } from '../types/webSocketTypes';
-import { generatePin } from '../utils/generatePin';
+import { PartyDb, Message, Participants, Party } from '../types/party-types';
+import { createPartySchema, joinPartySchema } from '../schemas/party-schema';
+import { sendMessage } from '../utils/send-message';
+import { ExtWebSocket } from '../types/websocket-types';
+import { WebSocketManager } from '../managers/websocket-manager';
+import { WebSocketMessageEvent } from '../types/websocket-types';
+import { generatePin } from '../utils/generate-pin';
 import { v4 as uuidv4 } from 'uuid';
-import { isPlayerInParty } from '../utils/isPlayerInParty';
-import { PartyPoolManager } from '../managers/PartyPoolManager';
+import { isPlayerInParty } from '../utils/player-in-party';
+import { PartyPoolManager } from '../managers/party-pool-manager';
 
 export namespace PartyHandler {
     export async function createParty(ws: ExtWebSocket, obj: Message): Promise<void> {

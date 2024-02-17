@@ -1,8 +1,8 @@
-import { PartyModel } from '../models/partyModel';
-import { ParticipantModel } from '../models/participantModel';
+import { PartyModel } from '../models/party-model';
+import { ParticipantModel } from '../models/participant-model';
 import sqlite3 from 'sqlite3';
-import { isPlayerInParty } from '../types/partyTypes';
-import { DatabaseModel } from '../models/databaseModel';
+import { isPlayerInParty } from '../types/party-types';
+import { DatabaseModel } from '../models/database-model';
 
 export async function isPlayerInParty(wsId: string): Promise<isPlayerInParty> {
     const db = new sqlite3.Database(DatabaseModel.getDbName());
