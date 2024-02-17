@@ -1,5 +1,4 @@
 import sqlite3 from 'sqlite3';
-import { dbName } from '../configs/dbConfig';
 
 export class AnswerModel {
     private db: sqlite3.Database;

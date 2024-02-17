@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { WebSocketMessageEvent } from '../configs/webSocketConfig';
+import { WebSocketMessageEvent } from '../types/webSocketTypes';
 
 export const createPartySchema = z.object({
     event: z.literal(WebSocketMessageEvent.CREATE_PARTY),

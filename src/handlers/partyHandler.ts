@@ -3,7 +3,7 @@ import { createPartySchema, joinPartySchema } from '../schemas/partySchema';
 import { sendMessage } from '../utils/sendMessage';
 import { ExtWebSocket } from '../types/webSocketTypes';
 import { WebSocketManager } from '../managers/webSocketManager';
-import { WebSocketMessageEvent } from '../configs/webSocketConfig';
+import { WebSocketMessageEvent } from '../types/webSocketTypes';
 import { generatePin } from '../utils/generatePin';
 import { v4 as uuidv4 } from 'uuid';
 import { isPlayerInParty } from '../utils/isPlayerInParty';

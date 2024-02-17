@@ -1,5 +1,5 @@
 import { json } from 'express';
-import { WebSocketEvent, WebSocketMessageEvent } from '../configs/webSocketConfig';
+import { WebSocketEvent, WebSocketMessageEvent } from '../types/webSocketTypes';
 import { ExtWebSocket } from '../types/webSocketTypes';
 import { stringToJSON } from '../utils/stringToJson';
 import { GameHandler } from './gameHandler';

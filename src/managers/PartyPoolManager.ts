@@ -1,15 +1,15 @@
 import { PartyPool, Party } from '../types/partyTypes';
 import sqlite3 from 'sqlite3';
-import { dbName } from '../configs/dbConfig';
 import { PartyModel } from '../models/partyModel';
 import { AnswerModel } from '../models/answerModel';
 import { ParticipantModel } from '../models/participantModel';
+import { DatabaseModel } from '../models/databaseModel';
 
 export namespace PartyPoolManager {
     const pool: PartyPool[] = [];
 
     export function addParty(partyId: string, pin: string): PartyPool {
-        const db = new sqlite3.Database(dbName);
+        const db = new sqlite3.Database(DatabaseModel.getDbName());
 
         const party = {
             id: partyId,

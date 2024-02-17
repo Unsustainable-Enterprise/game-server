@@ -1,7 +1,7 @@
 import { PartyHandler } from '../handlers/partyHandler';
 import sqlite3 from 'sqlite3';
 import { PartyModel } from '../models/partyModel';
-import { dbName } from '../configs/dbConfig';
+import { DatabaseModel } from '../models/databaseModel';
 
 export async function generatePin(): Promise<string> {
     try {
@@ -19,7 +19,7 @@ export async function generatePin(): Promise<string> {
 
 async function checkForDuplicate(pin: string): Promise<boolean> {
     try {
-        const db = new sqlite3.Database(dbName);
+        const db = new sqlite3.Database(DatabaseModel.getDbName());
         const partyModel = new PartyModel(db);
 
         const party = await partyModel.getPartyByPin(pin);

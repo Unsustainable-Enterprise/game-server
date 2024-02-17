@@ -4,7 +4,7 @@ import { Message } from '../types/partyTypes';
 import { startGameSchema } from '../schemas/gameSchema';
 import { sendMessage } from '../utils/sendMessage';
 import { WebSocketManager } from '../managers/webSocketManager';
-import { WebSocketMessageEvent } from '../configs/webSocketConfig';
+import { WebSocketMessageEvent } from '../types/webSocketTypes';
 import { ParticipantModel } from '../models/participantModel';
 import { PartyPoolManager } from '../managers/PartyPoolManager';
 

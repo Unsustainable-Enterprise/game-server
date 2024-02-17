@@ -1,10 +1,14 @@
 import sqlite3 from 'sqlite3';
-import { dbName } from '../configs/dbConfig';
 import fs from 'fs';
 
-const db = new sqlite3.Database(dbName);
-
 export namespace DatabaseModel {
+    const dbName = 'database.db';
+    const db = new sqlite3.Database(dbName);
+
+    export function getDbName(): string {
+        return dbName;
+    }
+
     export async function init() {
         if (fs.existsSync(dbName)) {
             const deleteQueries = [

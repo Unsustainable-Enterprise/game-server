@@ -1,5 +1,4 @@
 import sqlite3 from 'sqlite3';
-import { dbName } from '../configs/dbConfig';
 import { ExtWebSocket } from '../types/webSocketTypes';
 import { Participants } from '../types/partyTypes';
 
