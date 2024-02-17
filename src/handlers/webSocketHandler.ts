@@ -3,7 +3,7 @@ import { WebSocketEvent, WebSocketMessageEvent } from '../configs/webSocketConfi
 import { ExtWebSocket } from '../types/webSocketTypes';
 import { stringToJSON } from '../utils/stringToJson';
 import { GameHandler } from './gameHandler';
-import { LobbyHandler } from './lobbyHandler';
+import { PartyHandler } from './partyHandler';
 
 export namespace WebSocketHandler {
     export function handleWebsocket(ws: ExtWebSocket, req: any) {
@@ -18,39 +18,39 @@ export namespace WebSocketHandler {
             }
 
             switch (jsonMessage.event) {
-                case WebSocketMessageEvent.CREATE_LOBBY: {
-                    LobbyHandler.createLobby(ws, jsonMessage);
+                case WebSocketMessageEvent.CREATE_PARTY: {
+                    PartyHandler.createParty(ws, jsonMessage);
                     break;
                 }
-                case WebSocketMessageEvent.JOIN_LOBBY: {
-                    LobbyHandler.joinLobby(ws, jsonMessage);
+                case WebSocketMessageEvent.JOIN_PARTY: {
+                    PartyHandler.joinParty(ws, jsonMessage);
                     break;
                 }
-                case WebSocketMessageEvent.LEAVE_LOBBY: {
-                    LobbyHandler.onDisconnect(ws);
-                    break;
-                }
+                // case WebSocketMessageEvent.LEAVE_PARTY: {
+                //     PartyHandler.onDisconnect(ws);
+                //     break;
+                // }
                 case WebSocketMessageEvent.START_GAME: {
                     GameHandler.startGame(ws, jsonMessage);
                     break;
                 }
-                case WebSocketMessageEvent.ANSWER_QUESTION: {
-                    LobbyHandler.answerQuestion(ws, jsonMessage);
-                    break;
-                }
-                case WebSocketMessageEvent.DISPLAY_QUESTION_RESULTS: {
-                    LobbyHandler.displayQuestionResults(ws, jsonMessage);
-                    break;
-                }
+                // case WebSocketMessageEvent.ANSWER_QUESTION: {
+                //     LobbyHandler.answerQuestion(ws, jsonMessage);
+                //     break;
+                // }
+                // case WebSocketMessageEvent.DISPLAY_QUESTION_RESULTS: {
+                //     LobbyHandler.displayQuestionResults(ws, jsonMessage);
+                //     break;
+                // }
                 default: {
                     break;
                 }
             }
         });
 
-        ws.on(WebSocketEvent.CLOSE, () => {
-            LobbyHandler.onDisconnect(ws);
-            console.log('A user disconnected');
-        });
+        // ws.on(WebSocketEvent.CLOSE, () => {
+        //     PartyHandler.onDisconnect(ws);
+        //     console.log('A user disconnected');
+        // });
     }
 }

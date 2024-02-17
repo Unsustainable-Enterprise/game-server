@@ -8,7 +8,7 @@ export namespace DatabaseModel {
     export function init() {
         if (fs.existsSync(dbName)) {
             const deleteQueries = [
-                'DELETE FROM lobbies;',
+                'DELETE FROM parties;',
                 'DELETE FROM participants;',
                 'DELETE FROM answers;',
             ];
@@ -26,9 +26,9 @@ export namespace DatabaseModel {
 
         const tableDefinitions: { name: string; query: string }[] = [
             {
-                name: 'lobbies',
+                name: 'parties',
                 query: `
-                    CREATE TABLE IF NOT EXISTS lobbies (
+                    CREATE TABLE IF NOT EXISTS parties (
                         id TEXT PRIMARY KEY,
                         pin TEXT,
                         scenario TEXT,
@@ -43,7 +43,7 @@ export namespace DatabaseModel {
                 query: `
                     CREATE TABLE IF NOT EXISTS participants (
                         id TEXT PRIMARY KEY,
-                        lobby_id TEXT NOT NULL,
+                        party_id TEXT NOT NULL,
                         name TEXT NOT NULL,
                         score INTEGER
                 );
@@ -55,7 +55,7 @@ export namespace DatabaseModel {
                     CREATE TABLE IF NOT EXISTS answers (
                         id TEXT PRIMARY KEY,
                         participant_id TEXT NOT NULL,
-                        lobby_id TEXT NOT NULL,
+                        party_id TEXT NOT NULL,
                         question INT NOT NULL,
                         answer INT NOT NULL
                 );

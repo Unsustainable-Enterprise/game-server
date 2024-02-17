@@ -1,10 +1,17 @@
-export type Lobby = {
+import { Database } from 'sqlite3';
+
+export type Party = {
     id: string;
     pin: string;
     scenario: string;
     host: string;
     total_questions: number;
     win_percentage: number;
+};
+
+export type PartyPool = {
+    id: string;
+    db: Database;
 };
 
 export type Message = {

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { WebSocketMessageEvent } from '../configs/webSocketConfig';
 
-export const createLobbySchema = z.object({
-    event: z.literal(WebSocketMessageEvent.CREATE_LOBBY),
+export const createPartySchema = z.object({
+    event: z.literal(WebSocketMessageEvent.CREATE_PARTY),
     message: z.object({
         data: z.object({
             name: z.string().min(1),
@@ -13,8 +13,8 @@ export const createLobbySchema = z.object({
     }),
 });
 
-export const joinLobbySchema = z.object({
-    event: z.literal(WebSocketMessageEvent.LEAVE_LOBBY),
+export const joinPartySchema = z.object({
+    event: z.literal(WebSocketMessageEvent.LEAVE_PARTY),
     message: z.object({
         data: z.object({
             name: z.string().min(1),

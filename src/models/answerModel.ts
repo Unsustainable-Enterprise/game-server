@@ -5,8 +5,8 @@ export namespace AnswerModel {
     const db = new sqlite3.Database(dbName);
 
     export async function addAnswer(
-        lobby_id: string,
-        participant_id: string,
+        partyId: string,
+        participantId: string,
         question: number,
         answer: number
     ): Promise<void> {
@@ -17,7 +17,7 @@ export namespace AnswerModel {
 
         try {
             await new Promise<void>((resolve, reject) => {
-                db.run(query, [participant_id, lobby_id, question, answer], (err) => {
+                db.run(query, [participantId, partyId, question, answer], (err) => {
                     if (err) {
                         reject(err);
                     } else {

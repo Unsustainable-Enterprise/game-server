@@ -8,8 +8,8 @@ import fs from 'fs';
 import { WebSocketHandler } from './handlers/webSocketHandler';
 import { DatabaseModel } from './models/databaseModel';
 import { WebSocketManager } from './managers/webSocketManager';
-import { LobbyModel } from './models/lobbyModel';
-import { Lobby } from './types/lobbyTypes';
+import { PartyModel } from './models/partyModel';
+import { Party } from './types/partyTypes';
 import { ParticipantModel } from './models/participantModel';
 
 const httpsOptions = {
@@ -24,7 +24,7 @@ const wss = new WebSocket.Server({ server });
 
 wss.on(WebSocketEvent.CONNECTION, (ws: ExtWebSocket, req: any) => {
     WebSocketManager.addWebSocketSession(ws);
-    // WebSocketHandler.handleWebsocket(ws, req);
+    WebSocketHandler.handleWebsocket(ws, req);
 });
 
 server.listen(3000, () => {

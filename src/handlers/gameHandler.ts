@@ -1,11 +1,12 @@
-import { LobbyModel } from '../models/lobbyModel';
+import { PartyModel } from '../models/partyModel';
 import { ExtWebSocket } from '../types/webSocketTypes';
-import { Message } from '../types/lobbyTypes';
+import { Message } from '../types/partyTypes';
 import { startGameSchema } from '../schemas/gameSchema';
 import { sendMessage } from '../utils/sendMessage';
 import { WebSocketManager } from '../managers/webSocketManager';
 import { WebSocketMessageEvent } from '../configs/webSocketConfig';
 import { ParticipantModel } from '../models/participantModel';
+import { PartyPoolManager } from '../managers/PartyPoolManager';
 
 export namespace GameHandler {
     export async function startGame(ws: ExtWebSocket, obj: Message): Promise<void> {
@@ -13,31 +14,37 @@ export namespace GameHandler {
             const validation = startGameSchema.safeParse(obj);
 
             if (!validation?.success) {
-                console.log(JSON.stringify(validation.error));
-                console.log('createLobby validation failed');
+                console.log('startGame validation failed');
                 return;
             }
 
-            const lobby = await LobbyModel.getLobbyById(String(obj.token));
+            const partyPool = PartyPoolManager.findPartyById(String(obj.token));
 
-            if (!lobby) {
-                console.log('lobby not found');
+            if (!partyPool) {
+                console.log('party not found');
                 return;
             }
 
-            if (lobby.host !== ws.id) {
+            const party = await PartyModel.getPartyById(partyPool.db, String(obj.token));
+
+            if (!party) {
+                console.log('party not found');
+                return;
+            }
+
+            if (party.host !== ws.id) {
                 console.log('you are not host');
                 return;
             }
 
-            const participants = await ParticipantModel.getParticipants(lobby.id);
+            const participants = await ParticipantModel.getParticipants(party.id);
 
             for (const participant of participants) {
                 if (participant.id === ws.id) continue;
                 sendMessage(
                     WebSocketManager.getWebSocketSession(participant.id),
                     WebSocketMessageEvent.START_GAME,
-                    lobby.id,
+                    party.id,
                     {}
                 );
             }

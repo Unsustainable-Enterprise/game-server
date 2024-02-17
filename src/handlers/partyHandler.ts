@@ -1,90 +1,101 @@
-import { Message, Participants } from '../types/lobbyTypes';
-import { LobbyMessageEvent } from '../configs/lobbyConfig';
-import { createLobbySchema, joinLobbySchema } from '../schemas/lobbySchema';
+import { Message, Participants } from '../types/partyTypes';
+import { createPartySchema, joinPartySchema } from '../schemas/partySchema';
 import { sendMessage } from '../utils/sendMessage';
-import { LobbyModel } from '../models/lobbyModel';
+import { PartyModel } from '../models/partyModel';
 import { ExtWebSocket } from '../types/webSocketTypes';
 import { WebSocketManager } from '../managers/webSocketManager';
 import { WebSocketMessageEvent } from '../configs/webSocketConfig';
 import { generatePin } from '../utils/generatePin';
-import { Lobby } from '../types/lobbyTypes';
+import { Party } from '../types/partyTypes';
 import { v4 as uuidv4 } from 'uuid';
-import { isHostOrParticipant } from '../utils/isNotHostOrParticipant';
+import { isHostOrParticipant } from '../utils/isHostOrParticipant';
 import { ParticipantModel } from '../models/participantModel';
+import { PartyPoolManager } from '../managers/PartyPoolManager';
 
-export namespace LobbyHandler {
-    export async function createLobby(ws: ExtWebSocket, obj: Message): Promise<void> {
+export namespace PartyHandler {
+    export async function createParty(ws: ExtWebSocket, obj: Message): Promise<void> {
         try {
-            const validation = createLobbySchema.safeParse(obj);
+            const validation = createPartySchema.safeParse(obj);
             if (!validation?.success) {
-                console.log(JSON.stringify(validation.error));
-                console.log('createLobby validation failed');
+                console.log('createParty validation failed');
                 return;
             }
 
             const isPlaying = await isHostOrParticipant(ws.id);
             if (isPlaying) {
-                console.log('You are already in lobby');
+                console.log('You are already in party');
                 return;
             }
 
-            const lobby: Lobby = {
+            const party: Party = {
                 id: uuidv4(),
-                pin: generatePin(),
+                pin: await generatePin(),
                 scenario: obj.message.data.scenario.toString(),
                 host: ws.id,
                 total_questions: 10,
                 win_percentage: 0.5,
             };
 
-            await LobbyModel.createLobby(lobby);
+            const partyPool = PartyPoolManager.addParty(party.id);
 
-            sendMessage(ws, WebSocketMessageEvent.CREATE_LOBBY, lobby.id, {
-                pin: lobby.pin,
+            await PartyModel.createParty(partyPool.db, party);
+
+            sendMessage(ws, WebSocketMessageEvent.CREATE_PARTY, party.id, {
+                pin: party.pin,
                 user_name: obj.message.data.name.toString(),
-                scenario: lobby.scenario,
+                scenario: party.scenario,
             });
         } catch (error) {
             console.log(error);
         }
     }
 
-    export async function joinLobby(ws: ExtWebSocket, obj: Message): Promise<void> {
+    export async function joinParty(ws: ExtWebSocket, obj: Message): Promise<void> {
         try {
-            const validation = joinLobbySchema.safeParse(obj);
+            const validation = joinPartySchema.safeParse(obj);
 
             if (!validation?.success) {
-                console.log('joinLobby validation failed');
+                console.log('joinParty validation failed');
                 return;
             }
 
             const isPlaying = await isHostOrParticipant(ws.id);
 
             if (isPlaying) {
-                console.log('You are already in lobby');
+                console.log('You are already in party');
                 return;
             }
 
-            const lobby = await LobbyModel.getLobbyByPin(obj.message.data.pin.toString());
+            const partyPool = PartyPoolManager.findPartyById(obj.message.data.pin.toString());
 
-            if (!lobby) {
+            if (!partyPool) {
+                console.log('lobby not found');
+                return;
+            }
+
+            const party = await PartyModel.getPartyByPin(
+                partyPool?.db,
+                obj.message.data.pin.toString()
+            );
+
+            if (!party) {
                 console.log('lobby not found');
                 return;
             }
 
             await ParticipantModel.addParticipant(
-                lobby.id,
+                party.id,
                 ws.id,
                 obj.message.data.name.toString()
             );
-            const participants = await ParticipantModel.getParticipants(lobby.id);
+            const participants = await ParticipantModel.getParticipants(party.id);
 
             const participantsNames = participants.map((participant) => participant.name);
 
-            sendMessage(ws, WebSocketMessageEvent.JOIN_LOBBY, lobby.id, {
+            sendMessage(ws, WebSocketMessageEvent.JOIN_PARTY, party.id, {
                 success: true,
                 user_name: obj.message.data.name.toString(),
-                scenario: lobby.scenario,
+                scenario: party.scenario,
                 participants: participantsNames,
             });
 
@@ -92,8 +103,8 @@ export namespace LobbyHandler {
                 if (player.id === ws.id) continue;
                 sendMessage(
                     WebSocketManager.getWebSocketSession(player.id),
-                    WebSocketMessageEvent.PARTICIPANT_JOINED_LOBBY,
-                    lobby.id,
+                    WebSocketMessageEvent.PARTICIPANT_JOINED_PARTY,
+                    party.id,
                     {
                         participants: participantsNames,
                     }
@@ -103,81 +114,82 @@ export namespace LobbyHandler {
             console.log(error);
         }
     }
-
-    export async function onDisconnect(ws: ExtWebSocket): Promise<void> {
-        let lobby: Lobby;
-        const isParticipant = await ParticipantModel.isParticipant(ws.id);
-
-        if (isParticipant) {
-            const lobbyId = await ParticipantModel.getParticipantLobbyId(ws.id);
-            lobby = await LobbyModel.getLobbyById(lobbyId);
-        }
-
-        const isHost = await LobbyModel.isHostInLobby(ws.id);
-
-        if (!isParticipant || !isHost) {
-            return;
-        }
-
-        lobby = await LobbyModel.getLobbyByHost(ws.id);
-
-        if (lobby) {
-            if (isHost) {
-                lobbyHostLeave(lobby);
-                return;
-            } else {
-                lobbyParticipantLeave(lobby);
-                return;
-            }
-        }
-
-        function disconnectMessage(
-            disconnectedWs: ExtWebSocket,
-            participants: Participants[],
-            token: string,
-            data: object
-        ) {
-            for (const participant of participants) {
-                if (participant.id === disconnectedWs.id) continue;
-                sendMessage(
-                    WebSocketManager.getWebSocketSession(participant.id),
-                    WebSocketMessageEvent.LEAVE_LOBBY,
-                    token,
-                    data
-                );
-            }
-        }
-
-        async function lobbyHostLeave(lobby: Lobby) {
-            disconnectMessage(ws, lobby.getLobbyData().participants, lobby.getLobbyData().id, {
-                is_host: true,
-            });
-
-            await lobby.removeLobby(lobby.getLobbyData().id, (err: any) => {
-                if (err) {
-                    console.error('Error inserting data:', err.message);
-                } else {
-                    console.log('Data removed successfully.');
-                }
-            });
-        }
-
-        async function lobbyParticipantLeave(lobby: Lobby) {
-            await lobby.removeParticipant(lobby.getLobbyData().id, ws.id, (err: any) => {
-                if (err) {
-                    console.error('Error inserting data:', err.message);
-                } else {
-                    console.log('Data removed successfully.');
-                }
-            });
-
-            disconnectMessage(ws, lobby.getLobbyData().participants, lobby.getLobbyData().id, {
-                is_host: false,
-                participants: lobby.getLobbyData().participants.map((user) => user.name),
-            });
-        }
-    }
 }
+
+//     export async function onDisconnect(ws: ExtWebSocket): Promise<void> {
+//         let party: Party;
+//         const isParticipant = await ParticipantModel.isParticipant(ws.id);
+
+//         if (isParticipant) {
+//             const partyId = await ParticipantModel.getParticipantLobbyId(ws.id);
+//             party = await PartyModel.getPartyById(lobbyId);
+//         }
+
+//         const isHost = await PartyModel.isHostInParty(ws.id);
+
+//         if (!isParticipant || !isHost) {
+//             return;
+//         }
+
+//         party = await PartyModel.getPartyByHost(ws.id);
+
+//         if (party) {
+//             if (isHost) {
+//                 partyHostLeave(party);
+//                 return;
+//             } else {
+//                 partyParticipantLeave(party);
+//                 return;
+//             }
+//         }
+
+//         function disconnectMessage(
+//             disconnectedWs: ExtWebSocket,
+//             participants: Participants[],
+//             token: string,
+//             data: object
+//         ) {
+//             for (const participant of participants) {
+//                 if (participant.id === disconnectedWs.id) continue;
+//                 sendMessage(
+//                     WebSocketManager.getWebSocketSession(participant.id),
+//                     WebSocketMessageEvent.LEAVE_PARTY,
+//                     token,
+//                     data
+//                 );
+//             }
+//         }
+
+//         async function partyHostLeave(party: Party) {
+//             disconnectMessage(ws, party.getLobbyData().participants, lobby.getLobbyData().id, {
+//                 is_host: true,
+//             });
+
+//             await lobby.removeLobby(lobby.getLobbyData().id, (err: any) => {
+//                 if (err) {
+//                     console.error('Error inserting data:', err.message);
+//                 } else {
+//                     console.log('Data removed successfully.');
+//                 }
+//             });
+//         }
+
+//         async function lobbyParticipantLeave(lobby: Lobby) {
+//             await lobby.removeParticipant(lobby.getLobbyData().id, ws.id, (err: any) => {
+//                 if (err) {
+//                     console.error('Error inserting data:', err.message);
+//                 } else {
+//                     console.log('Data removed successfully.');
+//                 }
+//             });
+
+//             disconnectMessage(ws, lobby.getLobbyData().participants, lobby.getLobbyData().id, {
+//                 is_host: false,
+//                 participants: lobby.getLobbyData().participants.map((user) => user.name),
+//             });
+//         }
+//     }
+// }
 
 //     export async function displayQuestionResults(ws: ExtWebSocket, obj: Message) {
 //         const lobby = LobbyManager.findLobbyByParticipantId(ws.id);

@@ -1,7 +1,7 @@
 import sqlite3 from 'sqlite3';
 import { dbName } from '../configs/dbConfig';
 import { ExtWebSocket } from '../types/webSocketTypes';
-import { Participants } from '../types/lobbyTypes';
+import { Participants } from '../types/partyTypes';
 
 export namespace ParticipantModel {
     const db = new sqlite3.Database(dbName);
@@ -112,11 +112,13 @@ export namespace ParticipantModel {
         const query = `SELECT COUNT(*) as count FROM participants WHERE id = ?;`;
 
         return new Promise<boolean>((resolve, reject) => {
-            db.all(query, [participantId], (err, rows) => {
-                if (err) {
-                    reject(err);
+            db.get(query, [participantId], (error, data: { count?: number }) => {
+                if (error) {
+                    console.error('Error:', error);
+                    reject(error);
                 } else {
-                    resolve(rows.length > 0);
+                    const participantsCount = data?.count || 0;
+                    resolve(participantsCount > 0);
                 }
             });
         });

@@ -1,18 +1,23 @@
-import { LobbyManager } from '../managers/lobbyManager';
+import { PartyHandler } from '../handlers/partyHandler';
+import sqlite3 from 'sqlite3';
+import { PartyModel } from '../models/partyModel';
+import { dbName } from '../configs/dbConfig';
 
-export function generatePin() {
+export async function generatePin() {
     const pin = (Math.floor(Math.random() * 90000) + 10000).toString();
-    if (checkForDuplicate(pin)) {
+    if (await checkForDuplicate(pin)) {
         return generatePin();
     }
     return pin;
 }
 
-function checkForDuplicate(pin: string): boolean {
-    const lobby = LobbyManager.findlobbyByPin(pin);
+async function checkForDuplicate(pin: string): Promise<boolean> {
+    const db = new sqlite3.Database(dbName);
+    const party = await PartyModel.getPartyByPin(db, pin);
 
-    console.log(lobby);
-    if (lobby) {
+    db.close();
+
+    if (party) {
         return true;
     }
 
