@@ -27,6 +27,8 @@ export namespace PartyPoolManager {
         const index = partyPool.findIndex((party) => party.id === partyId);
 
         if (index !== -1) {
+            const party = partyPool[index];
+            party.partyModel.removeParty(partyId, party.participantModel, party.answerModel);
             partyPool.splice(index, 1);
         }
     }
