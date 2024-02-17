@@ -1,15 +1,12 @@
-import { Message, Participants } from '../types/partyTypes';
+import { PartyDb, Message, Participants, Party } from '../types/partyTypes';
 import { createPartySchema, joinPartySchema } from '../schemas/partySchema';
 import { sendMessage } from '../utils/sendMessage';
-import { PartyModel } from '../models/partyModel';
 import { ExtWebSocket } from '../types/webSocketTypes';
 import { WebSocketManager } from '../managers/webSocketManager';
 import { WebSocketMessageEvent } from '../configs/webSocketConfig';
 import { generatePin } from '../utils/generatePin';
-import { Party } from '../types/partyTypes';
 import { v4 as uuidv4 } from 'uuid';
-import { isHostOrParticipant } from '../utils/isHostOrParticipant';
-import { ParticipantModel } from '../models/participantModel';
+import { isPlayerInParty } from '../utils/isPlayerInParty';
 import { PartyPoolManager } from '../managers/PartyPoolManager';
 
 export namespace PartyHandler {
@@ -21,13 +18,13 @@ export namespace PartyHandler {
                 return;
             }
 
-            const isPlaying = await isHostOrParticipant(ws.id);
-            if (isPlaying) {
+            const partyStatus = await isPlayerInParty(ws.id);
+            if (partyStatus.isHost || partyStatus.isParticipant) {
                 console.log('You are already in party');
                 return;
             }
 
-            const partyData: Party = {
+            const partyData: PartyDb = {
                 id: uuidv4(),
                 pin: await generatePin(),
                 scenario: obj.message.data.scenario.toString(),
@@ -58,9 +55,9 @@ export namespace PartyHandler {
                 return;
             }
 
-            const isPlaying = await isHostOrParticipant(ws.id);
+            const partyStatus = await isPlayerInParty(ws.id);
 
-            if (isPlaying) {
+            if (partyStatus.isHost || partyStatus.isParticipant) {
                 console.log('You are already in party');
                 return;
             }
@@ -104,82 +101,56 @@ export namespace PartyHandler {
             console.log(error);
         }
     }
+
+    export async function onDisconnect(ws: ExtWebSocket): Promise<void> {
+        const partyStatus = await isPlayerInParty(ws.id);
+
+        if (!partyStatus.isHost && !partyStatus.isParticipant) {
+            return;
+        }
+
+        const party = await PartyPoolManager.getPartyById(partyStatus.id);
+
+        if (party) {
+            if (partyStatus.isHost) {
+                return await hostLeft(party);
+            } else {
+                return participantLeft(party);
+            }
+        }
+
+        function disconnectMessage(
+            disconnectedWs: ExtWebSocket,
+            participants: Participants[],
+            token: string,
+            data: object
+        ) {
+            for (const participant of participants) {
+                if (participant.id === disconnectedWs.id) continue;
+                sendMessage(
+                    WebSocketManager.getWebSocketSession(participant.id),
+                    WebSocketMessageEvent.LEAVE_PARTY,
+                    token,
+                    data
+                );
+            }
+        }
+
+        async function hostLeft(party: Party) {
+            const participants = await party.participantModel.getParticipants(party.id);
+
+            disconnectMessage(ws, participants, party.id, {
+                is_host: true,
+            });
+
+            await party.partyModel.removeParty(party.id, party.participantModel, party.answerModel);
+        }
+
+        async function participantLeft(party: Party) {
+            await party.participantModel.removeParticipant(party.id, ws.id);
+        }
+    }
 }
-
-//     export async function onDisconnect(ws: ExtWebSocket): Promise<void> {
-//         let party: Party;
-//         const isParticipant = await ParticipantModel.isParticipant(ws.id);
-
-//         if (isParticipant) {
-//             const partyId = await ParticipantModel.getParticipantLobbyId(ws.id);
-//             party = await PartyModel.getPartyById(lobbyId);
-//         }
-
-//         const isHost = await PartyModel.isHostInParty(ws.id);
-
-//         if (!isParticipant || !isHost) {
-//             return;
-//         }
-
-//         party = await PartyModel.getPartyByHost(ws.id);
-
-//         if (party) {
-//             if (isHost) {
-//                 partyHostLeave(party);
-//                 return;
-//             } else {
-//                 partyParticipantLeave(party);
-//                 return;
-//             }
-//         }
-
-//         function disconnectMessage(
-//             disconnectedWs: ExtWebSocket,
-//             participants: Participants[],
-//             token: string,
-//             data: object
-//         ) {
-//             for (const participant of participants) {
-//                 if (participant.id === disconnectedWs.id) continue;
-//                 sendMessage(
-//                     WebSocketManager.getWebSocketSession(participant.id),
-//                     WebSocketMessageEvent.LEAVE_PARTY,
-//                     token,
-//                     data
-//                 );
-//             }
-//         }
-
-//         async function partyHostLeave(party: Party) {
-//             disconnectMessage(ws, party.getLobbyData().participants, lobby.getLobbyData().id, {
-//                 is_host: true,
-//             });
-
-//             await lobby.removeLobby(lobby.getLobbyData().id, (err: any) => {
-//                 if (err) {
-//                     console.error('Error inserting data:', err.message);
-//                 } else {
-//                     console.log('Data removed successfully.');
-//                 }
-//             });
-//         }
-
-//         async function lobbyParticipantLeave(lobby: Lobby) {
-//             await lobby.removeParticipant(lobby.getLobbyData().id, ws.id, (err: any) => {
-//                 if (err) {
-//                     console.error('Error inserting data:', err.message);
-//                 } else {
-//                     console.log('Data removed successfully.');
-//                 }
-//             });
-
-//             disconnectMessage(ws, lobby.getLobbyData().participants, lobby.getLobbyData().id, {
-//                 is_host: false,
-//                 participants: lobby.getLobbyData().participants.map((user) => user.name),
-//             });
-//         }
-//     }
-// }
 
 //     export async function displayQuestionResults(ws: ExtWebSocket, obj: Message) {
 //         const lobby = LobbyManager.findLobbyByParticipantId(ws.id);

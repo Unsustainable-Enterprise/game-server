@@ -1,4 +1,4 @@
-import { PartyPool, GetParty } from '../types/partyTypes';
+import { PartyPool, Party } from '../types/partyTypes';
 import sqlite3 from 'sqlite3';
 import { dbName } from '../configs/dbConfig';
 import { PartyModel } from '../models/partyModel';
@@ -34,7 +34,7 @@ export namespace PartyPoolManager {
         }
     }
 
-    export async function getPartyById(partyId: string): Promise<GetParty | null> {
+    export async function getPartyById(partyId: string): Promise<Party | null> {
         try {
             const partyPool = pool.find((party) => party.id === partyId);
 
@@ -45,7 +45,7 @@ export namespace PartyPoolManager {
                     partyModel: partyPool.partyModel,
                     participantModel: partyPool.participantModel,
                     answerModel: partyPool.answerModel,
-                } as GetParty;
+                } as Party;
             }
 
             return null;
@@ -54,7 +54,7 @@ export namespace PartyPoolManager {
         }
     }
 
-    export async function getPartyByPin(pin: string): Promise<GetParty | null> {
+    export async function getPartyByPin(pin: string): Promise<Party | null> {
         try {
             const partyPool = pool.find((party) => party.pin === pin);
 
@@ -65,7 +65,7 @@ export namespace PartyPoolManager {
                     partyModel: partyPool.partyModel,
                     participantModel: partyPool.participantModel,
                     answerModel: partyPool.answerModel,
-                } as GetParty;
+                } as Party;
             }
 
             return null;

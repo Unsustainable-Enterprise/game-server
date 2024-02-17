@@ -109,17 +109,16 @@ export class ParticipantModel {
         }
     }
 
-    public async isParticipant(participantId: string): Promise<boolean> {
-        const query = `SELECT COUNT(*) as count FROM participants WHERE id = ?;`;
+    public async getPartyIdByParticipant(participantId: string): Promise<string> {
+        const query = `SELECT party_id FROM participants WHERE id = ?;`;
 
-        return new Promise<boolean>((resolve, reject) => {
-            this.db.get(query, [participantId], (error, data: { count?: number }) => {
+        return new Promise((resolve, reject) => {
+            this.db.get(query, [participantId], (error, row: { party_id: string }) => {
                 if (error) {
                     console.error('Error:', error);
                     reject(error);
                 } else {
-                    const participantsCount = data?.count || 0;
-                    resolve(participantsCount > 0);
+                    resolve(row?.party_id);
                 }
             });
         });

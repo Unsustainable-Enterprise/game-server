@@ -2,7 +2,7 @@ import { AnswerModel } from '../models/answerModel';
 import { ParticipantModel } from '../models/participantModel';
 import { PartyModel } from '../models/partyModel';
 
-export type Party = {
+export type PartyDb = {
     id: string;
     pin: string;
     scenario: string;
@@ -11,7 +11,7 @@ export type Party = {
     win_percentage: number;
 };
 
-export type GetParty = Party & Omit<PartyPool, 'id' | 'pin'>;
+export type Party = PartyDb & Omit<PartyPool, 'id' | 'pin'>;
 
 export type PartyPool = {
     id: string;
@@ -31,4 +31,14 @@ export type Participants = {
     id: string;
     score: number;
     name: string;
+};
+
+export type IsHost = {
+    id: string;
+};
+
+export type isPlayerInParty = {
+    id: string;
+    isHost: boolean;
+    isParticipant: boolean;
 };

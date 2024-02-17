@@ -1,4 +1,4 @@
-import { Party } from '../types/partyTypes';
+import { IsHost, PartyDb } from '../types/partyTypes';
 import sqlite3 from 'sqlite3';
 import { ParticipantModel } from './participantModel';
 import { AnswerModel } from './answerModel';
@@ -10,21 +10,21 @@ export class PartyModel {
         this.db = db;
     }
 
-    public async getParty(partyId: string): Promise<Party> {
+    public async getParty(partyId: string): Promise<PartyDb> {
         const query = `SELECT * FROM parties WHERE id = ?;`;
 
-        return new Promise<Party>((resolve, reject) => {
+        return new Promise<PartyDb>((resolve, reject) => {
             this.db.get(query, [partyId], (err, row) => {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(row as Party);
+                    resolve(row as PartyDb);
                 }
             });
         });
     }
 
-    public async createParty(partyData: Party): Promise<void> {
+    public async createParty(partyData: PartyDb): Promise<void> {
         const { id, pin, scenario, host, total_questions, win_percentage } = partyData;
 
         const query = `
@@ -75,59 +75,58 @@ export class PartyModel {
         }
     }
 
-    public async isHostInParty(host: string): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            const query = 'SELECT COUNT(*) as count FROM parties WHERE host = ?';
+    public async getPartyIdByHost(hostId: string): Promise<string> {
+        const query = 'SELECT id FROM parties WHERE host = ?';
 
-            this.db.get(query, [host], (error, data: { count?: number }) => {
+        return new Promise<string>((resolve, reject) => {
+            this.db.get(query, [hostId], (error, row: { id: string }) => {
                 if (error) {
                     console.error('Error:', error);
                     reject(error);
                 } else {
-                    const partyIdCount = data?.count || 0;
-                    resolve(partyIdCount > 0);
+                    resolve(row?.id);
                 }
             });
         });
     }
 
-    public async getPartyByPin(pin: string): Promise<Party> {
+    public async getPartyByPin(pin: string): Promise<PartyDb> {
         const query = 'SELECT * FROM parties WHERE pin = ?';
 
-        return new Promise<Party>((resolve, reject) => {
+        return new Promise<PartyDb>((resolve, reject) => {
             this.db.get(query, [pin], (err, row) => {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(row as Party);
+                    resolve(row as PartyDb);
                 }
             });
         });
     }
 
-    public async getPartyById(token: string): Promise<Party> {
+    public async getPartyById(token: string): Promise<PartyDb> {
         const query = 'SELECT * FROM parties WHERE id = ?';
 
-        return new Promise<Party>((resolve, reject) => {
+        return new Promise<PartyDb>((resolve, reject) => {
             this.db.get(query, [token], (err, row) => {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(row as Party);
+                    resolve(row as PartyDb);
                 }
             });
         });
     }
 
-    public async getPartyByHost(host: string): Promise<Party> {
+    public async getPartyByHost(host: string): Promise<PartyDb> {
         const query = 'SELECT * FROM parties WHERE host = ?';
 
-        return new Promise<Party>((resolve, reject) => {
+        return new Promise<PartyDb>((resolve, reject) => {
             this.db.get(query, [host], (err, row) => {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(row as Party);
+                    resolve(row as PartyDb);
                 }
             });
         });
