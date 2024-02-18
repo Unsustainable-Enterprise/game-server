@@ -1,7 +1,10 @@
-import { WebSocketEvent, WebSocketMessageEvent } from '../configs/webSocketConfig';
-import { ExtWebSocket } from '../types/webSocketTypes';
-import { stringToJSON } from '../utils/stringToJson';
-import { LobbyHandler } from './lobbyHandler';
+import { json } from 'express';
+import { WebSocketEvent, WebSocketMessageEvent } from '../types/websocket-types';
+import { ExtWebSocket } from '../types/websocket-types';
+import { stringToJSON } from '../utils/string-to-json';
+import { GameHandler } from './game-handler';
+import { PartyHandler } from './party-handler';
+import { AnswerHandler } from './answer-handler';
 
 export namespace WebSocketHandler {
     export function handleWebsocket(ws: ExtWebSocket, req: any) {
@@ -16,32 +19,28 @@ export namespace WebSocketHandler {
             }
 
             switch (jsonMessage.event) {
-                case WebSocketMessageEvent.CREATE_LOBBY: {
-                    LobbyHandler.createLobby(ws, jsonMessage);
+                case WebSocketMessageEvent.CREATE_PARTY: {
+                    PartyHandler.createParty(ws, jsonMessage);
                     break;
                 }
-                case WebSocketMessageEvent.MESSAGE_LOBBY: {
-                    LobbyHandler.messageLobby(ws, jsonMessage);
+                case WebSocketMessageEvent.JOIN_PARTY: {
+                    PartyHandler.joinParty(ws, jsonMessage);
                     break;
                 }
-                case WebSocketMessageEvent.JOIN_LOBBY: {
-                    LobbyHandler.joinLobby(ws, jsonMessage);
-                    break;
-                }
-                case WebSocketMessageEvent.LEAVE_LOBBY: {
-                    LobbyHandler.onDisconnect(ws);
+                case WebSocketMessageEvent.LEAVE_PARTY: {
+                    PartyHandler.onDisconnect(ws);
                     break;
                 }
                 case WebSocketMessageEvent.START_GAME: {
-                    LobbyHandler.startGame(ws);
+                    GameHandler.startGame(ws, jsonMessage);
                     break;
                 }
                 case WebSocketMessageEvent.ANSWER_QUESTION: {
-                    LobbyHandler.answerQuestion(ws, jsonMessage);
+                    AnswerHandler.answerQuestion(ws, jsonMessage);
                     break;
                 }
                 case WebSocketMessageEvent.DISPLAY_QUESTION_RESULTS: {
-                    LobbyHandler.displayQuestionResults(ws, jsonMessage);
+                    AnswerHandler.displayQuestionResults(ws, jsonMessage);
                     break;
                 }
                 default: {
@@ -51,7 +50,7 @@ export namespace WebSocketHandler {
         });
 
         ws.on(WebSocketEvent.CLOSE, () => {
-            LobbyHandler.onDisconnect(ws);
+            PartyHandler.onDisconnect(ws);
             console.log('A user disconnected');
         });
     }

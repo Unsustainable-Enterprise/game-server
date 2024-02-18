@@ -1,13 +1,11 @@
 import * as https from 'https';
-import express from 'express';
-import cors from 'cors';
 import WebSocket from 'ws';
-import { WebSocketEvent } from './configs/webSocketConfig';
-import { ExtWebSocket } from './types/webSocketTypes';
+import { WebSocketEvent } from './types/websocket-types';
+import { ExtWebSocket } from './types/websocket-types';
 import fs from 'fs';
-import { WebSocketHandler } from './handlers/webSocketHandler';
-import { DatabaseModel } from './models/databaseModel';
-import { WebSocketManager } from './managers/webSocketManager';
+import { WebSocketHandler } from './handlers/websocket-handler';
+import { DatabaseModel } from './models/database-model';
+import { WebSocketManager } from './managers/websocket-manager';
 
 const httpsOptions = {
     key: fs.readFileSync(__dirname + '/security/cert.key'),
