@@ -9,20 +9,6 @@ export class ParticipantModel {
         this.db = db;
     }
 
-    public async getParticipantScore(participantId: string): Promise<number> {
-        const query = `SELECT score FROM participants WHERE id = ?;`;
-
-        return new Promise<number>((resolve, reject) => {
-            this.db.all(query, [participantId], (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve((rows[0] as { score: number })?.score);
-                }
-            });
-        });
-    }
-
     public async addParticipant(partyId: string, id: string, name: string): Promise<void> {
         const query = `
             INSERT INTO participants (id, party_id, name, score)
@@ -53,28 +39,6 @@ export class ParticipantModel {
         try {
             await new Promise<void>((resolve, reject) => {
                 this.db.run(query, [partyId, participantId], (err) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve();
-                    }
-                });
-            });
-        } catch (error: any) {
-            throw error;
-        }
-    }
-
-    public async updateParticipantScore(participantId: string, score: number): Promise<void> {
-        const query = `
-            UPDATE participants
-            SET score = ?
-            WHERE id = ?;
-        `;
-
-        try {
-            await new Promise<void>((resolve, reject) => {
-                this.db.run(query, [score, participantId], (err) => {
                     if (err) {
                         reject(err);
                     } else {

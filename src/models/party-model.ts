@@ -131,4 +131,24 @@ export class PartyModel {
             });
         });
     }
+
+    public async getAllPartyPlayerIds(
+        partyId: string,
+        participantModel: ParticipantModel
+    ): Promise<string[]> {
+        const query = 'SELECT host FROM lobbies WHERE id = ?';
+
+        return new Promise<string[]>((resolve, reject) => {
+            this.db.get(query, [partyId], async (err, row: { host: string }) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    const participants = await participantModel.getParticipants(partyId);
+                    const combinedResult = participants.map((participant) => participant.id);
+                    combinedResult.push(row.host);
+                    resolve(combinedResult);
+                }
+            });
+        });
+    }
 }

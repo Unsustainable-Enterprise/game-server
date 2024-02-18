@@ -11,9 +11,9 @@ export type PartyDb = {
     win_percentage: number;
 };
 
-export type Party = PartyDb & Omit<PartyPool, 'id' | 'pin'>;
+export type Party = PartyDb & Omit<PartyPoolRecord, 'id' | 'pin'>;
 
-export type PartyPool = {
+export type PartyPoolRecord = {
     id: string;
     pin: string;
     partyModel: PartyModel;
@@ -23,7 +23,7 @@ export type PartyPool = {
 
 export type Message = {
     event: string;
-    token?: string;
+    id?: string;
     message: { data: { [key: string]: string | number | boolean | number }; type?: string };
 };
 

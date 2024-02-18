@@ -11,16 +11,17 @@ export class AnswerModel {
         partyId: string,
         participantId: string,
         question: number,
-        answer: number
+        answer: number,
+        isCorrect: boolean
     ): Promise<void> {
         const query = `
-            INSERT INTO answers (participant_id, party_id, question, answer)
-            VALUES (?, ?, ?, ?);
+            INSERT INTO answers (participant_id, party_id, question, answer, correct)
+            VALUES (?, ?, ?, ?, ?);
         `;
 
         try {
             await new Promise<void>((resolve, reject) => {
-                this.db.run(query, [participantId, partyId, question, answer], (err) => {
+                this.db.run(query, [participantId, partyId, question, answer, isCorrect], (err) => {
                     if (err) {
                         reject(err);
                     } else {

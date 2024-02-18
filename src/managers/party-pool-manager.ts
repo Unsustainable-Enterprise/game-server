@@ -1,4 +1,4 @@
-import { PartyPool, Party } from '../types/party-types';
+import { PartyPoolRecord, Party } from '../types/party-types';
 import sqlite3 from 'sqlite3';
 import { PartyModel } from '../models/party-model';
 import { AnswerModel } from '../models/answer-model';
@@ -6,9 +6,9 @@ import { ParticipantModel } from '../models/participant-model';
 import { DatabaseModel } from '../models/database-model';
 
 export namespace PartyPoolManager {
-    const pool: PartyPool[] = [];
+    const pool: PartyPoolRecord[] = [];
 
-    export function addParty(partyId: string, pin: string): PartyPool {
+    export function addParty(partyId: string, pin: string): PartyPoolRecord {
         const db = new sqlite3.Database(DatabaseModel.getDbName());
 
         const party = {

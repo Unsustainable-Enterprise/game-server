@@ -4,6 +4,7 @@ import { ExtWebSocket } from '../types/websocket-types';
 import { stringToJSON } from '../utils/string-to-json';
 import { GameHandler } from './game-handler';
 import { PartyHandler } from './party-handler';
+import { AnswerHandler } from './answer-handler';
 
 export namespace WebSocketHandler {
     export function handleWebsocket(ws: ExtWebSocket, req: any) {
@@ -26,31 +27,31 @@ export namespace WebSocketHandler {
                     PartyHandler.joinParty(ws, jsonMessage);
                     break;
                 }
-                // case WebSocketMessageEvent.LEAVE_PARTY: {
-                //     PartyHandler.onDisconnect(ws);
-                //     break;
-                // }
+                case WebSocketMessageEvent.LEAVE_PARTY: {
+                    PartyHandler.onDisconnect(ws);
+                    break;
+                }
                 case WebSocketMessageEvent.START_GAME: {
                     GameHandler.startGame(ws, jsonMessage);
                     break;
                 }
-                // case WebSocketMessageEvent.ANSWER_QUESTION: {
-                //     LobbyHandler.answerQuestion(ws, jsonMessage);
-                //     break;
-                // }
-                // case WebSocketMessageEvent.DISPLAY_QUESTION_RESULTS: {
-                //     LobbyHandler.displayQuestionResults(ws, jsonMessage);
-                //     break;
-                // }
+                case WebSocketMessageEvent.ANSWER_QUESTION: {
+                    AnswerHandler.answerQuestion(ws, jsonMessage);
+                    break;
+                }
+                case WebSocketMessageEvent.DISPLAY_QUESTION_RESULTS: {
+                    AnswerHandler.displayQuestionResults(ws, jsonMessage);
+                    break;
+                }
                 default: {
                     break;
                 }
             }
         });
 
-        // ws.on(WebSocketEvent.CLOSE, () => {
-        //     PartyHandler.onDisconnect(ws);
-        //     console.log('A user disconnected');
-        // });
+        ws.on(WebSocketEvent.CLOSE, () => {
+            PartyHandler.onDisconnect(ws);
+            console.log('A user disconnected');
+        });
     }
 }

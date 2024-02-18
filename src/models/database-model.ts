@@ -43,7 +43,6 @@ export namespace DatabaseModel {
                         id TEXT PRIMARY KEY,
                         party_id TEXT NOT NULL,
                         name TEXT NOT NULL,
-                        score INTEGER
                 );
                 `,
             },
@@ -55,7 +54,8 @@ export namespace DatabaseModel {
                         participant_id TEXT NOT NULL,
                         party_id TEXT NOT NULL,
                         question INT NOT NULL,
-                        answer INT NOT NULL
+                        answer INT NOT NULL,
+                        correct BOOLEAN NOT NULL
                 );
                 `,
             },
